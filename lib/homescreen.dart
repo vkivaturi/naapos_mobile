@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:naapos/entities.dart';
 
 class NaaPOSHome extends StatefulWidget {
   NaaPOSHome({Key key, this.title}) : super(key: key);
@@ -66,19 +67,34 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
               columnSpacing: 0,
               columns: [
                 DataColumn(
-                  label: Text("ITEM DETAILS"),
+                  label: Text(
+                    "ITEM DETAILS",
+                    style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  ),
                   numeric: false,
-                  tooltip: "Item details",
                 ),
                 DataColumn(
-                  label: Text("QUANTITY"),
+                  label: Text(
+                    "QUANTITY",
+                    style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  ),
                   numeric: false,
-                  tooltip: "Item quantity",
                 ),
                 DataColumn(
-                  label: Text("PRICE (in Rs)"),
+                  label: Text(
+                    "PRICE (in Rs)",
+                    style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  ),
                   numeric: false,
-                  tooltip: "Tax % and Unit price",
                 ),
               ],
               rows: items
@@ -90,24 +106,16 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                           onSelectedRow(b, item);
                         },
                         cells: [
-//                          DataCell(
-//                            Text(item.slNo),
-//                            onTap: () {
-//                              print('Selected ${item.slNo}');
-//                            },
-//                          ),
-//                          DataCell(
-//                            Text(item.code),
-//                          ),
                           DataCell(
-                            Text(item.code + "-" + item.itemDetail),
+                            Text(item.code.toString() + "-" + item.itemDetail),
                           ),
                           DataCell(
-                            Text(item.qty),
+                            Center(
+                                child: Text(
+                              item.qty,
+                              textAlign: TextAlign.center,
+                            )),
                           ),
-//                          DataCell(
-//                            Text(item.tax),
-//                          ),
                           DataCell(
                             Text(item.tax + "% + " + item.unitPrice),
                           ),
@@ -139,90 +147,14 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   @override
   Widget build(BuildContext context) {
-//    Widget createInvoice = Container(
-//      padding: const EdgeInsets.all(32),
-//      child: Row(
-//        children: [
-//          Expanded(
-//            /*1*/
-//            child: Column(
-//              crossAxisAlignment: CrossAxisAlignment.start,
-//              children: [
-//                /*2*/
-//                new TextField(
-//                  decoration: new InputDecoration(
-//                      labelText: "Enter item code",
-//                      border: OutlineInputBorder()),
-//                  keyboardType: TextInputType.number,
-//                  controller: itemCodeController,
-//                  focusNode: nodeItem,
-//                ),
-//                new TextField(
-//                  decoration: new InputDecoration(
-//                      labelText: "Enter quantity",
-//                      border: OutlineInputBorder()),
-//                  keyboardType: TextInputType.number,
-//                  controller: qtyController,
-//                ),
-//                RaisedButton(
-//                    onPressed: () {
-//                      List<String> itemDetails =
-//                          fetchItemDetails(itemCodeController.text);
-//                      String _itemDesc = itemDetails[0];
-//                      String _itemPrice = itemDetails[1];
-//                      String _itemTaxPerc = itemDetails[2];
-//
-//                      litems.add(
-//                        buildListItem(
-//                            litems.length.toString(),
-//                            itemCodeController.text,
-//                            _itemDesc,
-//                            qtyController.text,
-//                            _itemTaxPerc,
-//                            _itemPrice),
-//                      );
-//
-//                      increaseInvTotalAmt(
-//                          int.parse(_itemPrice),
-//                          int.parse(qtyController.text),
-//                          int.parse(_itemTaxPerc));
-//
-//                      setState(() {});
-//
-//                      itemCodeController.clear();
-//                      qtyController.clear();
-//                      FocusScope.of(context).requestFocus(nodeItem);
-//                    },
-//                    child: Text('Add item', style: TextStyle(fontSize: 25))),
-//                new ListView.builder(
-//                    scrollDirection: Axis.vertical,
-//                    shrinkWrap: true,
-//                    itemCount: litems.length,
-//                    itemBuilder: (BuildContext ctxt, int Index) {
-//                      return new Text(litems[Index]);
-//                    })
-//              ],
-//            ),
-//          ),
-//          /*3*/
-//        ],
-//      ),
-//    );
 
     Widget invoiceFooter = Container(
       padding: const EdgeInsets.all(32),
       child: Row(children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(10.0),
           child: OutlineButton(
-            child: Text('SELECTED ${selectedItems.length}'),
-            onPressed: () {},
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: OutlineButton(
-            child: Text('DELETE SELECTED'),
+            child: Text('DELETE SELECTED', style: TextStyle(fontSize: 15)),
             onPressed: selectedItems.isEmpty
                 ? null
                 : () {
@@ -230,14 +162,36 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   },
           ),
         ),
+        RaisedButton(
+          //padding: const EdgeInsets.all(12.0),
+          textColor: Colors.white,
+          color: Colors.green,
+
+          child: Text('CREATE INVOICE', style: TextStyle(fontSize: 15)),
+        ),
       ]),
     );
 
     Widget invoiceTotal = Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          new Text("rows1 " + fetchInvoiceTotal().toString()),
+          new Text(
+            "Invoice total (with tax) is : ",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.blueAccent,
+            ),
+          ),
+          new Text(
+            "" + fetchInvoiceTotal().toString(),
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.blueAccent,
+            ),
+          )
         ],
       ),
     );
@@ -268,7 +222,6 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   //padding: const EdgeInsets.all(12.0),
                   textColor: Colors.white,
                   color: Colors.green,
-
                   onPressed: () {
                     List<String> itemDetails =
                         fetchItemDetails(itemCodeController.text);
@@ -277,7 +230,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                     String _itemTaxPerc = itemDetails[2];
 
                     Item itemAdd = new Item();
-                    itemAdd.setItem("", itemCodeController.text, itemDetails[0],
+                    itemAdd.setItem("", int.parse(itemCodeController.text), itemDetails[0],
                         qtyController.text, itemDetails[2], itemDetails[1]);
                     items.add(itemAdd);
 
@@ -295,82 +248,89 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
           ],
         ));
 
-//    Widget selectedItemsList = Container(
-//        padding: const EdgeInsets.all(5),
-//        child: Row(children: <Widget>[
-//          new Flexible(
-//              child: new ListView.builder(
-//                  scrollDirection: Axis.vertical,
-//                  shrinkWrap: true,
-//                  itemCount: litems.length,
-//                  itemBuilder: (BuildContext ctxt, int Index) {
-//                    return new Text(litems[Index]);
-//                  })),
-//        ]));
-
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text("Create Invoice"),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text('Drawer Header'),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+              ),
+              ListTile(
+                title: Text('Create Invoice'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('View invoices'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Manage items'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Settings'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+
+            ],
+          ),
         ),
         body: Column(
           children: [
             selectItem,
 //          selectedItemsList,
-          invoiceTotal,
+            invoiceTotal,
             dataBody(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-//                Padding(
-//                  padding: EdgeInsets.all(20.0),
-//                  child: OutlineButton(
-//                    child: Text('SELECTED ${selectedItems.length}'),
-//                    onPressed: () {},
-//                  ),
-//                ),
-//                Padding(
-//                  padding: EdgeInsets.all(20.0),
-//                  child: OutlineButton(
-//                    child: Text('DELETE SELECTED'),
-//                    onPressed: selectedItems.isEmpty
-//                        ? null
-//                        : () {
-//                            deleteSelected();
-//                          },
-//                  ),
-//                ),
-              ],
+              children: <Widget>[],
             ),
           ],
         ),
-//      bottomNavigationBar: invoiceTotal,
         persistentFooterButtons: <Widget>[invoiceFooter]);
   }
 }
 
-//Initialise list on app load
-//List<String> initialiseItemList() {
-//  List<String> itemsList = [];
-//  itemsList.add(buildListItem(" ", " ", " ", " ", " ", " "));
-//  itemsList.add(
-//      buildListItem("#", "CODE", "ITEM DETAILS", "QTY", "TAX", "UNIT PRICE"));
-//  itemsList.add(buildListItem(" ", " ", " ", " ", " ", " "));
-//
-//  return (itemsList);
-//}
-
 //Function to create the row to be included in the items view
-buildListItem(String col1, String col2, String col3, String col4, String col5,
-    String col6) {
-  String _row = col1.padRight(5, ' ') +
-      col2.padRight(15, ' ') +
-      col3.padRight(25, ' ') +
-      col4.padRight(4, ' ') +
-      col5.padRight(5, ' ') +
-      col6.padRight(5, ' ');
-  return _row;
-}
+//buildListItem(String col1, String col2, String col3, String col4, String col5,
+//    String col6) {
+//  String _row = col1.padRight(5, ' ') +
+//      col2.padRight(15, ' ') +
+//      col3.padRight(25, ' ') +
+//      col4.padRight(4, ' ') +
+//      col5.padRight(5, ' ') +
+//      col6.padRight(5, ' ');
+//  return _row;
+//}
 
 //Fetch item details based on code
 List<String> fetchItemDetails(String _code) {
@@ -392,195 +352,3 @@ List<String> fetchItemDetails(String _code) {
   return itemMaster[_code];
 }
 
-class Item {
-  String slNo;
-  String code;
-  String itemDetail;
-  String qty;
-  String tax;
-  String unitPrice;
-
-  Item(
-      {this.slNo,
-      this.code,
-      this.itemDetail,
-      this.qty,
-      this.tax,
-      this.unitPrice});
-
-  void setItem(String slNo, String code, String itemDetail, String qty,
-      String tax, String unitPrice) {
-    this.slNo = slNo;
-    this.code = code;
-    this.itemDetail = itemDetail;
-    this.qty = qty;
-    this.tax = tax;
-    this.unitPrice = unitPrice;
-  }
-
-  static List<Item> getItems() {
-    return <Item>[
-      Item(
-          slNo: "1",
-          code: "100000",
-          itemDetail: "Idly (3 pcs)",
-          qty: "5",
-          tax: "5",
-          unitPrice: "3500"),
-      Item(
-          slNo: "1",
-          code: "2000",
-          itemDetail: "Idly (4 pcs)",
-          qty: "4",
-          tax: "1",
-          unitPrice: "45"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-      Item(
-          slNo: "1",
-          code: "3000",
-          itemDetail: "Idly (9 pcs)",
-          qty: "3",
-          tax: "2",
-          unitPrice: "55"),
-    ];
-  }
-}

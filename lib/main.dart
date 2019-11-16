@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'homescreen.dart';
+import 'package:naapos/items_catalog.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(NaaPOSApp());
 
-class MyApp extends StatelessWidget {
+class NaaPOSApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: NaaPOSHome(title: 'NaaPOS Home Screen'),
+//      home: NaaPOSHome(title: 'Create Invoice'),
+      home: ManageItem(title: 'Manage Items'),
     );
   }
 }
