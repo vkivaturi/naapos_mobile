@@ -12,16 +12,12 @@ class ManageItem extends StatefulWidget {
 }
 
 class ManageItemState extends State<ManageItem> {
+  final itemDetailController = TextEditingController();
+  final itemTaxController = TextEditingController();
+  final itemUnitPriceController = TextEditingController();
+
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
-  List<String> sendersList = [
-    "Idly 1 2 3",
-    "Dosa 5 6 7",
-    "Nothin tea",
-    "Coffeea as",
-  ];
-  List<String> subjectList = ["1", "2", "3", "4"];
-
   //Lists of map to store items added
   List<Item> items;
 
@@ -34,7 +30,7 @@ class ManageItemState extends State<ManageItem> {
   // homepage layout
   @override
   Widget build(BuildContext context) {
-    _query();
+    _queryAll();
 
     Widget abc = ListView.builder(
       scrollDirection: Axis.vertical,
@@ -88,7 +84,9 @@ class ManageItemState extends State<ManageItem> {
                               size: 25.0,
                               color: Colors.green,
                             ),
-                            onPressed: () { print(items[position].code.toString());},
+                            onPressed: () {
+                              _editItemDialog(position);
+                            },
                           )),
                     ],
                   ),
@@ -122,15 +120,15 @@ class ManageItemState extends State<ManageItem> {
                 _insert();
               },
             ),
-            RaisedButton(
-              child: Text(
-                'update',
-                style: TextStyle(fontSize: 20),
-              ),
-              onPressed: () {
-                _update();
-              },
-            ),
+//            RaisedButton(
+//              child: Text(
+//                'update',
+//                style: TextStyle(fontSize: 20),
+//              ),
+//              onPressed: () {
+//                _update();
+//              },
+//            ),
             RaisedButton(
               child: Text(
                 'delete',
@@ -160,13 +158,95 @@ class ManageItemState extends State<ManageItem> {
     print('inserted row id: $id');
   }
 
-  void _editItem() {
-    print('edit item');
+  //Dialog box for edit or delete items based on user input
+  _editItemDialog(int position) {
+    itemDetailController.text = items[position].itemDetail;
+    itemTaxController.text = items[position].tax;
+    itemUnitPriceController.text = items[position].unitPrice;
+
+    return showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Update / delete item code " +
+                  items[position].code.toString()),
+              content: new Column(
+                children: <Widget>[
+                  new TextField(
+                    decoration: new InputDecoration(
+                        labelText: "Item details",
+                        border: OutlineInputBorder()),
+                    keyboardType: TextInputType.text,
+                    controller: itemDetailController,
+                  ),
+                  new TextField(
+                    decoration: new InputDecoration(
+                        labelText: "Tax", border: OutlineInputBorder()),
+                    keyboardType: TextInputType.number,
+                    controller: itemTaxController,
+                  ),
+                  new TextField(
+                    decoration: new InputDecoration(
+                        labelText: "Unit price", border: OutlineInputBorder()),
+                    keyboardType: TextInputType.number,
+                    controller: itemUnitPriceController,
+                  ),
+                  new Row(children: <Widget>[
+                    new Column(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            Icons.check_circle,
+                            size: 40.0,
+                            color: Colors.deepPurple,
+                          ),
+                          onPressed: () {
+                            Item uItem = new Item();
+
+                            uItem.unitPrice = itemUnitPriceController.text;
+                            uItem.tax = itemTaxController.text;
+                            uItem.itemDetail = itemDetailController.text;
+                            uItem.code =
+                                int.parse(items[position].code.toString());
+
+                            _update(uItem);
+
+                            setState(() {
+                              items[position] = uItem;
+                            });
+
+                            Navigator.of(context, rootNavigator: true).pop();
+
+                            //_editItem(position);
+                          },
+                        ),
+                        new Text('Update item'),
+                      ],
+                    ),
+                    new Column(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            size: 40.0,
+                            color: Colors.red,
+                          ),
+                          onPressed: () {
+                            //_editItem(position);
+                          },
+                        ),
+                        new Text('Delete item'),
+                      ],
+                    )
+                  ]),
+                ],
+              ),
+            ));
   }
 
-  void _query() async {
+  void _queryAll() async {
     final allRows = await dbHelper.queryAllRows();
     print('query all rows:');
+    items = [];
     allRows.forEach((row) => _addItemToList(row));
   }
 
@@ -180,16 +260,16 @@ class ManageItemState extends State<ManageItem> {
     items.add(item);
   }
 
-  void _update() async {
+  void _update(Item item) async {
     // row to update
     Map<String, dynamic> row = {
-      DatabaseHelper.columnCode: 115,
-      DatabaseHelper.columnItemDetail: 'poori',
-      DatabaseHelper.columnTax: '11123',
-      DatabaseHelper.columnUnitPrice: '130',
+      DatabaseHelper.columnCode: item.code,
+      DatabaseHelper.columnItemDetail: item.itemDetail,
+      DatabaseHelper.columnTax: item.tax,
+      DatabaseHelper.columnUnitPrice: item.unitPrice,
     };
     final rowsAffected = await dbHelper.update(row);
-    print('updated $rowsAffected row(s)');
+//    print('updated $rowsAffected row(s)');
   }
 
   void _delete() async {

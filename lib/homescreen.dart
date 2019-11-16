@@ -14,9 +14,6 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   final itemCodeController = TextEditingController();
   final qtyController = TextEditingController();
 
-  //Initiatise invoice items list with header row
-  //List<String> litems = initialiseItemList();
-
   double invTotalAmt = 0;
 
   // Bring focus back to item text field field after adding an item
