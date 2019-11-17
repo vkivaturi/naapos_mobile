@@ -12,6 +12,7 @@ class ManageItem extends StatefulWidget {
 }
 
 class ManageItemState extends State<ManageItem> {
+  final itemCodeController = TextEditingController();
   final itemDetailController = TextEditingController();
   final itemTaxController = TextEditingController();
   final itemUnitPriceController = TextEditingController();
@@ -32,7 +33,7 @@ class ManageItemState extends State<ManageItem> {
   Widget build(BuildContext context) {
     _queryAll();
 
-    Widget abc = ListView.builder(
+    Widget ItemsView = ListView.builder(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       itemCount: items.length,
@@ -110,67 +111,65 @@ class ManageItemState extends State<ManageItem> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            abc,
-            RaisedButton(
-              child: Text(
-                'insert',
-                style: TextStyle(fontSize: 20),
-              ),
-              onPressed: () {
-                _insert();
-              },
+            Divider(
+              height: 2.0,
+              color: Colors.grey,
             ),
-//            RaisedButton(
-//              child: Text(
-//                'update',
-//                style: TextStyle(fontSize: 20),
-//              ),
-//              onPressed: () {
-//                _update();
-//              },
-//            ),
-            RaisedButton(
-              child: Text(
-                'delete',
-                style: TextStyle(fontSize: 20),
-              ),
-              onPressed: () {
-                _delete();
-              },
-            ),
+            ItemsView
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          _editItemDialog(-1);
+        },
       ),
     );
   }
 
-  // Button onPressed methods
-
-  void _insert() async {
-    // row to insert
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnCode: 115,
-      DatabaseHelper.columnItemDetail: 'Dosa 1123',
-      DatabaseHelper.columnTax: '23',
-      DatabaseHelper.columnUnitPrice: '30',
-    };
-    final id = await dbHelper.insert(row);
-    print('inserted row id: $id');
-  }
-
   //Dialog box for edit or delete items based on user input
   _editItemDialog(int position) {
-    itemDetailController.text = items[position].itemDetail;
-    itemTaxController.text = items[position].tax;
-    itemUnitPriceController.text = items[position].unitPrice;
+    //Use the same dialog box for creation of new item or update/delete of existing item.
+    bool isNewItem = position == -1 ? true : false;
+    String headerText = isNewItem
+        ? "Create new item"
+        : "Update / delete item code " + items[position].code.toString();
+
+    if (isNewItem) {
+      headerText = "Create new item";
+
+      itemCodeController.text = '';
+      itemDetailController.text = '';
+      itemTaxController.text = '';
+      itemUnitPriceController.text = '';
+    } else {
+      headerText =
+          "Update / delete item code " + items[position].code.toString();
+
+      //Since this is the update scenario, prefill text boxes with item values
+      itemCodeController.text = items[position].code.toString();
+      itemDetailController.text = items[position].itemDetail;
+      itemTaxController.text = items[position].tax;
+      itemUnitPriceController.text = items[position].unitPrice;
+    }
 
     return showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Update / delete item code " +
-                  items[position].code.toString()),
+              title: new Text(headerText),
               content: new Column(
                 children: <Widget>[
+                  Visibility(
+                    visible: isNewItem,
+                    child: new TextField(
+                      decoration: new InputDecoration(
+                          labelText: "Item code (numbers only)",
+                          border: OutlineInputBorder()),
+                      keyboardType: TextInputType.number,
+                      controller: itemCodeController,
+                    ),
+                  ),
                   new TextField(
                     decoration: new InputDecoration(
                         labelText: "Item details",
@@ -195,9 +194,9 @@ class ManageItemState extends State<ManageItem> {
                       children: <Widget>[
                         IconButton(
                           icon: Icon(
-                            Icons.check_circle,
+                            Icons.add_circle,
                             size: 40.0,
-                            color: Colors.deepPurple,
+                            color: Colors.green,
                           ),
                           onPressed: () {
                             Item uItem = new Item();
@@ -205,38 +204,80 @@ class ManageItemState extends State<ManageItem> {
                             uItem.unitPrice = itemUnitPriceController.text;
                             uItem.tax = itemTaxController.text;
                             uItem.itemDetail = itemDetailController.text;
-                            uItem.code =
-                                int.parse(items[position].code.toString());
+                            //Fetch code value from user entered data. Item code is read-only in update and delete cases.
+                            uItem.code = int.parse(itemCodeController.text);
 
-                            _update(uItem);
+                            _insert(uItem);
 
                             setState(() {
-                              items[position] = uItem;
+                              //items[position] = uItem;
+                              _queryAll();
                             });
 
                             Navigator.of(context, rootNavigator: true).pop();
-
-                            //_editItem(position);
                           },
                         ),
-                        new Text('Update item'),
+                        new Text('Create item'),
                       ],
                     ),
-                    new Column(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            size: 40.0,
-                            color: Colors.red,
-                          ),
-                          onPressed: () {
-                            //_editItem(position);
-                          },
-                        ),
-                        new Text('Delete item'),
-                      ],
-                    )
+                    Visibility(
+                        visible: !isNewItem,
+                        child: new Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                Icons.check_circle,
+                                size: 40.0,
+                                color: Colors.deepPurple,
+                              ),
+                              onPressed: () {
+                                Item uItem = new Item();
+
+                                uItem.unitPrice = itemUnitPriceController.text;
+                                uItem.tax = itemTaxController.text;
+                                uItem.itemDetail = itemDetailController.text;
+                                uItem.code =
+                                    int.parse(items[position].code.toString());
+
+                                _update(uItem);
+
+                                setState(() {
+                                  //items[position] = uItem;
+                                  _queryAll();
+                                });
+
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                            ),
+                            new Text('Update item'),
+                          ],
+                        )),
+                    Visibility(
+                        visible: !isNewItem,
+                        child: new Column(
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                size: 40.0,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                _delete(items[position].code);
+
+                                setState(() {
+                                  //items.remove(position);
+                                  _queryAll();
+                                });
+
+                                Navigator.of(context, rootNavigator: true)
+                                    .pop();
+                              },
+                            ),
+                            new Text('Delete item'),
+                          ],
+                        ))
                   ]),
                 ],
               ),
@@ -256,7 +297,6 @@ class ManageItemState extends State<ManageItem> {
     item.itemDetail = row["itemDetail"];
     item.tax = row["tax"];
     item.unitPrice = row["unitPrice"];
-
     items.add(item);
   }
 
@@ -268,14 +308,25 @@ class ManageItemState extends State<ManageItem> {
       DatabaseHelper.columnTax: item.tax,
       DatabaseHelper.columnUnitPrice: item.unitPrice,
     };
+
     final rowsAffected = await dbHelper.update(row);
 //    print('updated $rowsAffected row(s)');
   }
 
-  void _delete() async {
-    // Assuming that the number of rows is the id for the last row.
-    //final id = await dbHelper.queryRowCount();
-    int id = 111;
+  void _insert(Item item) async {
+    // row to insert
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnCode: item.code,
+      DatabaseHelper.columnItemDetail: item.itemDetail,
+      DatabaseHelper.columnTax: item.tax,
+      DatabaseHelper.columnUnitPrice: item.unitPrice,
+    };
+    print(row.toString());
+    final id = await dbHelper.insert(row);
+    print('inserted row id: $id');
+  }
+
+  void _delete(int id) async {
     final rowsDeleted = await dbHelper.delete(id);
     print('deleted $rowsDeleted row(s): row $id');
   }
