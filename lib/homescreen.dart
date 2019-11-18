@@ -15,6 +15,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   final qtyController = TextEditingController();
 
   double invTotalAmt = 0;
+  int invQuantity = 0;
+  double invTax = 0;
 
   // Bring focus back to item text field field after adding an item
   FocusNode nodeItem = FocusNode();
@@ -31,107 +33,107 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
     super.initState();
   }
 
-  onSelectedRow(bool selected, Item item) async {
+//  SingleChildScrollView dataBody() {
+//    return SingleChildScrollView(
+//        scrollDirection: Axis.vertical,
+//        child: Container(
+//            child: Row(children: [
+//          Expanded(
+//            child: DataTable(
+//              columnSpacing: 0,
+//              columns: [
+//                DataColumn(
+//                  label: Text(
+//                    "ITEM DETAILS",
+//                    style: TextStyle(
+//                        fontSize: 14.0,
+//                        color: Colors.black,
+//                        fontWeight: FontWeight.bold),
+//                  ),
+//                  numeric: false,
+//                ),
+//                DataColumn(
+//                  label: Text(
+//                    "QUANTITY",
+//                    style: TextStyle(
+//                        fontSize: 14.0,
+//                        color: Colors.black,
+//                        fontWeight: FontWeight.bold),
+//                  ),
+//                  numeric: false,
+//                ),
+//                DataColumn(
+//                  label: Text(
+//                    "PRICE (in Rs)",
+//                    style: TextStyle(
+//                        fontSize: 14.0,
+//                        color: Colors.black,
+//                        fontWeight: FontWeight.bold),
+//                  ),
+//                  numeric: false,
+//                ),
+//              ],
+//              rows: items
+//                  .map(
+//                    (item) => DataRow(
+////                        selected: selectedItems.contains(item),
+////                        onSelectChanged: (b) {
+////                          print("Onselect");
+////                          onSelectedRow(b, item);
+////                        },
+//                        cells: [
+//                          DataCell(
+//                            Text(item.code.toString() + "-" + item.itemDetail),
+//                          ),
+//                          DataCell(
+//                            Center(
+//                                child: Text(
+//                              item.qty,
+//                              textAlign: TextAlign.center,
+//                            )),
+//                          ),
+//                          DataCell(
+//                            Text(item.tax + "% + " + item.unitPrice),
+//                          ),
+//                        ]),
+//                  )
+//                  .toList(),
+//            ),
+//          )
+//        ])));
+//  }
+
+  //Increase invoice total amount, total tax and quantity of items
+  void increaseInvTotalAmt(double transactionAmount, int itemQty, int taxPerc) {
     setState(() {
-      if (selected) {
-        selectedItems.add(item);
-      } else {
-        selectedItems.remove(item);
-      }
+      invTotalAmt = invTotalAmt + transactionAmount;
+      invTax = invTax + (transactionAmount * taxPerc / 100);
+      invQuantity = invQuantity + itemQty;
+    });
+  }
+//Decrease all summary amounts when an items is deleted from draft invoice.
+  void decreaseInvTotalAmt(double transactionAmount, int itemQty, int taxPerc) {
+    setState(() {
+      invTotalAmt = invTotalAmt - transactionAmount;
+      invTax = invTax - (transactionAmount * taxPerc / 100);
+      invQuantity = invQuantity - itemQty;
     });
   }
 
-  deleteSelected() async {
-    setState(() {
-      if (selectedItems.isNotEmpty) {
-        List<Item> temp = [];
-        temp.addAll(selectedItems);
-        for (Item item in temp) {
-          items.remove(item);
-          selectedItems.remove(item);
-        }
-      }
-    });
-  }
-
-  SingleChildScrollView dataBody() {
-    return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-            child: Row(children: [
-          Expanded(
-            child: DataTable(
-              columnSpacing: 0,
-              columns: [
-                DataColumn(
-                  label: Text(
-                    "ITEM DETAILS",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  numeric: false,
-                ),
-                DataColumn(
-                  label: Text(
-                    "QUANTITY",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  numeric: false,
-                ),
-                DataColumn(
-                  label: Text(
-                    "PRICE (in Rs)",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  numeric: false,
-                ),
-              ],
-              rows: items
-                  .map(
-                    (item) => DataRow(
-//                        selected: selectedItems.contains(item),
-//                        onSelectChanged: (b) {
-//                          print("Onselect");
-//                          onSelectedRow(b, item);
-//                        },
-                        cells: [
-                          DataCell(
-                            Text(item.code.toString() + "-" + item.itemDetail),
-                          ),
-                          DataCell(
-                            Center(
-                                child: Text(
-                              item.qty,
-                              textAlign: TextAlign.center,
-                            )),
-                          ),
-                          DataCell(
-                            Text(item.tax + "% + " + item.unitPrice),
-                          ),
-                        ]),
-                  )
-                  .toList(),
-            ),
-          )
-        ])));
-  }
-
-  void increaseInvTotalAmt(int itemAmt, int itemQty, int taxPerc) {
-    setState(() {
-      invTotalAmt = invTotalAmt + (itemAmt * itemQty * (1 + (taxPerc / 100)));
-    });
+  double calculateTransactionAmt(int itemAmt, int itemQty, int taxPerc) {
+    return (itemAmt * itemQty * (1 + (taxPerc / 100)));
   }
 
   fetchInvoiceTotal() {
     return invTotalAmt;
+  }
+
+  fetchInvoiceQuantity() {
+    return invQuantity;
+  }
+
+  fetchInvoiceTax() {
+    return invTax;
   }
 
   @override
@@ -144,57 +146,77 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   @override
   Widget build(BuildContext context) {
-    Widget invoiceFooter = Container(
-      padding: const EdgeInsets.all(32),
-      child: Row(children: <Widget>[
-        Padding(
-          padding: EdgeInsets.all(10.0),
-          child: OutlineButton(
-            child: Text('DELETE SELECTED', style: TextStyle(fontSize: 15)),
-            onPressed: selectedItems.isEmpty
-                ? null
-                : () {
-                    deleteSelected();
-                  },
-          ),
-        ),
-        RaisedButton(
-          //padding: const EdgeInsets.all(12.0),
-          textColor: Colors.white,
-          color: Colors.green,
+    Widget ItemsView = ListView.builder(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        itemCount: items.length,
+        itemBuilder: (context, position) {
+          return Card(
+              child: ListTile(
+            title: Text(items[position].code.toString() +
+                " == " +
+                items[position].itemDetail +
+                " == Rs. " +
+                items[position].unitPrice),
+            subtitle: Text("Tax rate : " +
+                items[position].tax +
+                "%" +
+                " == Quantity : " +
+                items[position].qty),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.edit,
+                size: 25.0,
+                color: Colors.orange,
+              ),
+              onPressed: () {
+                //Remove the item and set state so that screen refreshes with latest data
+                setState(() {
 
-          child: Text('CREATE INVOICE', style: TextStyle(fontSize: 15)),
-        ),
-      ]),
-    );
+                  double transactionAmount = calculateTransactionAmt(
+                      int.parse(items[position].unitPrice),
+                      int.parse(items[position].qty),
+                      int.parse(items[position].tax));
 
-    Widget invoiceTotal = Container(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
 
-        children: [
-          new Text(
-            "Invoice total (with tax) : ",
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 20.0,
-//              color: Colors.blueAccent,
+                  decreaseInvTotalAmt(transactionAmount,
+                      int.parse(items[position].qty), int.parse(items[position].tax));
+
+                  items.removeAt(position);
+
+                });
+              },
             ),
-          ),
-          new Text(
-            "" + fetchInvoiceTotal().toString(),
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 20.0,
-              color: Colors.deepPurpleAccent,
-              fontWeight: FontWeight.bold
+          ));
+        });
+
+    Widget itemSummary = Card(
+        color: Colors.deepPurpleAccent,
+        child: ListTile(
+            title: Text(
+              "Tax amount (in Rs) : " + fetchInvoiceTax().toString(),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  fontSize: 15.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
             ),
-          )
-        ],
-      ),
-    );
+            subtitle: Text(
+              "Number of items     : " + fetchInvoiceQuantity().toString(),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  fontSize: 15.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
+            trailing: Text(
+              "Rs. " + fetchInvoiceTotal().toString(),
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                  fontSize: 35.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            )));
 
     Widget selectItem = Container(
         padding: const EdgeInsets.all(10),
@@ -231,6 +253,11 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                     String _itemPrice = itemDetails[1];
                     String _itemTaxPerc = itemDetails[2];
 
+                    double transactionAmount = calculateTransactionAmt(
+                        int.parse(_itemPrice),
+                        int.parse(qtyController.text),
+                        int.parse(_itemTaxPerc));
+
                     Item itemAdd = new Item();
                     itemAdd.setItem(
                         "",
@@ -238,10 +265,12 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                         itemDetails[0],
                         qtyController.text,
                         itemDetails[2],
-                        itemDetails[1]);
+                        itemDetails[1],
+                        transactionAmount.toString());
                     items.add(itemAdd);
 
-                    increaseInvTotalAmt(int.parse(_itemPrice),
+                    //Add transactiona amount to the invoice total
+                    increaseInvTotalAmt(transactionAmount,
                         int.parse(qtyController.text), int.parse(_itemTaxPerc));
 
                     setState(() {});
@@ -257,7 +286,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add to cart"),
+        title: Text("Customer billing"),
+        backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
       body: Column(
         children: [
@@ -267,12 +297,14 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
             height: 2.0,
             color: Colors.grey,
           ),
-          invoiceTotal,
+//          invoiceTotal,
+          itemSummary,
           Divider(
             height: 2.0,
             color: Colors.grey,
           ),
-          dataBody(),
+//          dataBody(),
+          ItemsView,
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -321,10 +353,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 //          ])),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
-        onPressed: () {
-        },
+        onPressed: () {},
       ),
-
     );
 
 //        persistentFooterButtons: <Widget>[invoiceFooter]);

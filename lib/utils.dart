@@ -21,7 +21,8 @@ class Constants {
     appBarTheme: AppBarTheme(
       textTheme: TextTheme(
         title: TextStyle(
-          color: darkBG,
+
+          color: lightBG,
           fontSize: 24.0,
         ),
       ),

@@ -10,9 +10,8 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dashboard for orders and items"),
-        elevation: .1,
-        //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
+        title: Text("Naa POS Dashboard"),
+        backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 2.0),
@@ -24,7 +23,7 @@ class _DashboardState extends State<Dashboard> {
             makeDashboardItem("Today's top selling items", Icons.highlight),
             makeDashboardItem("Weekly order timeline", Icons.graphic_eq),
             makeDashboardItem("Weekly order values", Icons.show_chart),
-            makeDashboardItem("Edit last order", Icons.edit),
+            makeDashboardItem("View last order", Icons.remove_red_eye),
             makeDashboardItem("Add new item", Icons.add_box)
           ],
         ),
@@ -50,7 +49,8 @@ class _DashboardState extends State<Dashboard> {
                     child: Icon(
                       icon,
                       size: 40.0,
-                      color: Colors.black,
+                      color: Colors.deepPurpleAccent,
+
                     )),
                 SizedBox(height: 20.0),
                 new Center(
