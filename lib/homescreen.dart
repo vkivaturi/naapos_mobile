@@ -97,11 +97,11 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
               rows: items
                   .map(
                     (item) => DataRow(
-                        selected: selectedItems.contains(item),
-                        onSelectChanged: (b) {
-                          print("Onselect");
-                          onSelectedRow(b, item);
-                        },
+//                        selected: selectedItems.contains(item),
+//                        onSelectChanged: (b) {
+//                          print("Onselect");
+//                          onSelectedRow(b, item);
+//                        },
                         cells: [
                           DataCell(
                             Text(item.code.toString() + "-" + item.itemDetail),
@@ -144,7 +144,6 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   @override
   Widget build(BuildContext context) {
-
     Widget invoiceFooter = Container(
       padding: const EdgeInsets.all(32),
       child: Row(children: <Widget>[
@@ -172,13 +171,16 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
     Widget invoiceTotal = Container(
       padding: const EdgeInsets.all(20),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+
         children: [
           new Text(
-            "Invoice total (with tax) is : ",
+            "Invoice total (with tax) : ",
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 20.0,
-              color: Colors.blueAccent,
+//              color: Colors.blueAccent,
             ),
           ),
           new Text(
@@ -186,7 +188,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
             textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 20.0,
-              color: Colors.blueAccent,
+              color: Colors.deepPurpleAccent,
+              fontWeight: FontWeight.bold
             ),
           )
         ],
@@ -196,6 +199,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
     Widget selectItem = Container(
         padding: const EdgeInsets.all(10),
         child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             new Flexible(
               child: new TextField(
@@ -216,7 +221,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
             ),
             new Flexible(
               child: RaisedButton(
-                  //padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(12.0),
                   textColor: Colors.white,
                   color: Colors.green,
                   onPressed: () {
@@ -227,8 +232,13 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                     String _itemTaxPerc = itemDetails[2];
 
                     Item itemAdd = new Item();
-                    itemAdd.setItem("", int.parse(itemCodeController.text), itemDetails[0],
-                        qtyController.text, itemDetails[2], itemDetails[1]);
+                    itemAdd.setItem(
+                        "",
+                        int.parse(itemCodeController.text),
+                        itemDetails[0],
+                        qtyController.text,
+                        itemDetails[2],
+                        itemDetails[1]);
                     items.add(itemAdd);
 
                     increaseInvTotalAmt(int.parse(_itemPrice),
@@ -246,88 +256,80 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         ));
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Create Invoice"),
-        ),
-        drawer: Drawer(
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text('Drawer Header'),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-              ),
-              ListTile(
-                title: Text('Create Invoice'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('View invoices'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Manage items'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Settings'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            selectItem,
+      appBar: AppBar(
+        title: Text("Add to cart"),
+      ),
+      body: Column(
+        children: [
+          selectItem,
 //          selectedItemsList,
-            invoiceTotal,
-            dataBody(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[],
-            ),
-          ],
-        ),
-        persistentFooterButtons: <Widget>[invoiceFooter]);
+          Divider(
+            height: 2.0,
+            color: Colors.grey,
+          ),
+          invoiceTotal,
+          Divider(
+            height: 2.0,
+            color: Colors.grey,
+          ),
+          dataBody(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[],
+          ),
+        ],
+      ),
+//      bottomNavigationBar: BottomAppBar(
+//          child: new Row(
+//              mainAxisSize: MainAxisSize.max,
+//              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//              children: <Widget>[
+////            SizedBox(width: 0),
+//            IconButton(
+//              icon: Icon(
+//                Icons.home,
+//                size: 40.0,
+//                color: Colors.deepPurpleAccent,
+//              ),
+//            ),
+//            IconButton(
+//              onPressed: (){
+//                Navigator.pushNamed(context, '/second');
+//              },
+//              icon: Icon(
+//                Icons.shopping_cart,
+//                size: 40.0,
+//                color: Colors.deepPurpleAccent,
+//              ),
+//            ),
+//            IconButton(
+//              icon: Icon(
+//                Icons.list,
+//                size: 40.0,
+//                color: Colors.deepPurpleAccent,
+//              ),
+//            ),
+//            IconButton(
+//
+//              icon: Icon(
+//                Icons.library_books,
+//                size: 40.0,
+//                color: Colors.deepPurpleAccent,
+//              ),
+//            )
+//          ])),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.save),
+        onPressed: () {
+        },
+      ),
+
+    );
+
+//        persistentFooterButtons: <Widget>[invoiceFooter]);
   }
 }
-
-//Function to create the row to be included in the items view
-//buildListItem(String col1, String col2, String col3, String col4, String col5,
-//    String col6) {
-//  String _row = col1.padRight(5, ' ') +
-//      col2.padRight(15, ' ') +
-//      col3.padRight(25, ' ') +
-//      col4.padRight(4, ' ') +
-//      col5.padRight(5, ' ') +
-//      col6.padRight(5, ' ');
-//  return _row;
-//}
 
 //Fetch item details based on code
 List<String> fetchItemDetails(String _code) {
@@ -336,7 +338,7 @@ List<String> fetchItemDetails(String _code) {
 
   Map<String, List<String>> itemMaster = new Map();
   itemMaster['1000'] = ['Idly (3 pcs)', '30', '5'];
-  itemMaster['1100'] = ['Idly (2 pcs) vada (1 pc) combo', '25', '5'];
+  itemMaster['1100'] = ['Idly vada combo', '25', '5'];
   itemMaster['2000'] = ['Upma', '30', '5'];
   itemMaster['2100'] = ['Pongal', '30', '5'];
   itemMaster['3000'] = ['Tea', '10', '5'];
@@ -348,4 +350,3 @@ List<String> fetchItemDetails(String _code) {
 
   return itemMaster[_code];
 }
-
