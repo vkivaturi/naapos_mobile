@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:naapos/entities.dart';
+import 'package:csv/csv.dart';
 
 class Constants {
   static String appName = "Point of Sale";
@@ -61,12 +63,32 @@ class HelperMethods {
       backgroundColor: color,
       content: Text(
         message,
-        style: TextStyle(
-            fontSize: 20.0, color: Colors.white),
+        style: TextStyle(fontSize: 20.0, color: Colors.white),
       ),
     );
     // Find the Scaffold in the widget tree and use
     // it to show a SnackBar.
     Scaffold.of(context).showSnackBar(snackBar);
+  }
+
+  //Convert items into a csv string. This can be used in multiple scenarios - like saving
+  // invoice transaction information or items export from catalog
+  static String convertItemsListToCSV(List<Item> items) {
+    List<List<dynamic>> rows = List<List<dynamic>>();
+
+    for (var item in items) {
+      List<dynamic> row = List();
+
+      row.add(item.code);
+      row.add(item.itemDetail);
+      row.add(item.qty);
+      row.add(item.tax);
+      row.add(item.unitPrice);
+      row.add(item.transactionPrice);
+
+      rows.add(row);
+    }
+
+    return ListToCsvConverter().convert(rows);
   }
 }

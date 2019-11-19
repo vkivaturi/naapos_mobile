@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/entities.dart';
 import 'package:naapos/database_helper.dart';
 import 'package:naapos/utils.dart';
+import 'package:naapos/utils_invoice.dart';
 
 class NaaPOSHome extends StatefulWidget {
   NaaPOSHome({Key key, this.title}) : super(key: key);
@@ -87,30 +88,26 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
     Item item;
 
     if (allRows == null) {
-      HelperMethods.showMessage(context, Colors.red, "Item code is invalid. Please add it to the item catalog");
-      //print("Item code is invalid. Please add it to the item catalog first");
+      HelperMethods.showMessage(context, Colors.red,
+          "Item code is invalid. Please add it to the item catalog");
     } else if (allRows.length != 1) {
-      HelperMethods.showMessage(context, Colors.red, "Item code has multiple items. Please correct the item catalog");
-
-//      print(
-//          "Item code has multiple items. Please correct the item catalog first");
+      HelperMethods.showMessage(context, Colors.red,
+          "Item code has multiple items. Please correct the item catalog");
     } else {
-      print("1 row returned");
       Map<String, Object> row = allRows.elementAt(0);
+
       item = new Item();
       item.code = int.parse(row["code"]);
       item.itemDetail = row["itemDetail"];
       item.tax = row["tax"];
       item.unitPrice = row["unitPrice"];
       item.qty = qty;
-//      items.add(item);
 
       double transactionAmount = calculateTransactionAmt(
-          int.parse(item.unitPrice),
-          int.parse(qty),
-          int.parse(item.tax));
+          int.parse(item.unitPrice), int.parse(qty), int.parse(item.tax));
+      item.transactionPrice = transactionAmount.toString();
 
-      //Add transactiona amount to the invoice total
+      //Add transactions amount to the invoice total
       increaseInvTotalAmt(
           transactionAmount, int.parse(qty), int.parse(item.tax));
 
@@ -118,34 +115,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
       //Refresh the list
       setState(() {});
-
     }
-    //Refresh screen with items list since this function is an async one
-//    setState(() {});
-    //return item;
-
-
   }
-
-  //Fetch item details based on code
-//  List<String> fetchItemDetails(String _code) {
-//    //Mock code to create static items list
-//    //Item description, Unit price, Tax percentage
-//
-//    Map<String, List<String>> itemMaster = new Map();
-//    itemMaster['1000'] = ['Idly (3 pcs)', '30', '5'];
-//    itemMaster['1100'] = ['Idly vada combo', '25', '5'];
-//    itemMaster['2000'] = ['Upma', '30', '5'];
-//    itemMaster['2100'] = ['Pongal', '30', '5'];
-//    itemMaster['3000'] = ['Tea', '10', '5'];
-//    itemMaster['3100'] = ['Cofee', '10', '5'];
-//    itemMaster['4000'] = ['Dosa - plain', '30', '5'];
-//    itemMaster['4100'] = ['Dosa - masala', '35', '5'];
-//    itemMaster['4200'] = ['Dosa - onion', '40', '5'];
-//    itemMaster['4300'] = ['Dosa - egg', '40', '5'];
-//
-//    return itemMaster[_code];
-//  }
 
   //This is the main build method
   @override
@@ -165,10 +136,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
             subtitle: Text("Tax rate : " +
                 items[position].tax +
                 "%" +
-                "    Quantity : "
-                +
-                items[position].qty
-            ),
+                "    Quantity : " +
+                items[position].qty),
             trailing: IconButton(
               icon: Icon(
                 Icons.delete,
@@ -253,38 +222,6 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   color: Colors.green,
                   onPressed: () {
                     queryForItem(itemCodeController.text, qtyController.text);
-//                    List<String> itemDetails =
-//                        fetchItemDetails(itemCodeController.text);
-//                    String _itemDesc = itemDetails[0];
-//                    String _itemPrice = itemDetails[1];
-//                    String _itemTaxPerc = itemDetails[2];
-//
-//                    double transactionAmount = calculateTransactionAmt(
-//                        int.parse(_itemPrice),
-//                        int.parse(qtyController.text),
-//                        int.parse(_itemTaxPerc));
-//
-//                    Item itemAdd = new Item();
-//                    itemAdd.setItem(
-//                        "",
-//                        int.parse(itemCodeController.text),
-//                        itemDetails[0],
-//                        qtyController.text,
-//                        itemDetails[2],
-//                        itemDetails[1],
-//                        transactionAmount.toString());
-//                    double transactionAmount = calculateTransactionAmt(
-//                        int.parse(itemAdd.unitPrice),
-//                        int.parse(qtyController.text),
-//                        int.parse(itemAdd.tax));
-//
-//                    items.add(itemAdd);
-//
-//                    //Add transactiona amount to the invoice total
-//                    increaseInvTotalAmt(transactionAmount,
-//                        int.parse(qtyController.text), int.parse(itemAdd.tax));
-
-//                    setState(() {});
 
                     itemCodeController.clear();
                     qtyController.clear();
@@ -323,7 +260,13 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
         onPressed: () {
-          HelperMethods.showMessage(context, Colors.blue, "Save invoice feature is not yet implemented");
+          if (items.length > 0) {
+            Invoice invoice = InvoiceHelpers.buildInvoice(items);
+            InvoiceHelpers.insert(invoice, dbHelper, context);
+          } else {
+            HelperMethods.showMessage(context, Colors.deepOrange,
+                "Please add at least 1 item to create invoice");
+          }
         },
       ),
     );
