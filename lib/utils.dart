@@ -21,7 +21,6 @@ class Constants {
     appBarTheme: AppBarTheme(
       textTheme: TextTheme(
         title: TextStyle(
-
           color: lightBG,
           fontSize: 24.0,
         ),
@@ -52,4 +51,22 @@ class Constants {
 //      ),
     ),
   );
+}
+
+class HelperMethods {
+  //Show message at bottom of the page
+  static void showMessage(BuildContext context, Color color, String message) {
+    final snackBar = SnackBar(
+      duration: const Duration(seconds: 2),
+      backgroundColor: color,
+      content: Text(
+        message,
+        style: TextStyle(
+            fontSize: 20.0, color: Colors.white),
+      ),
+    );
+    // Find the Scaffold in the widget tree and use
+    // it to show a SnackBar.
+    Scaffold.of(context).showSnackBar(snackBar);
+  }
 }

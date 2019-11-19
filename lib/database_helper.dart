@@ -4,6 +4,8 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:naapos/entities.dart';
+
 class DatabaseHelper {
   static final _databaseName = "Items.db";
   static final _databaseVersion = 1;
@@ -52,17 +54,6 @@ class DatabaseHelper {
             $columnITUnitPrice TEXT NOT NULL
           )
           ''');
-
-//    await db.execute('''
-//          CREATE TABLE $invoiceTable (
-//            $columnIVinvoiceNumber INT PRIMARY KEY,
-//            $columnIVtransactions TEXT NOT NULL,
-//            $columnITTax TEXT NOT NULL,
-//            $columnITUnitPrice TEXT NOT NULL
-//          )
-//          ''');
-
-
   }
 
   // Helper methods
@@ -80,6 +71,18 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> queryITAllRows() async {
     Database db = await instance.database;
     return await db.query(itemTable);
+  }
+
+  Future<List<Map<String, dynamic>>> queryITCode(int id) async {
+    Database db = await instance.database;
+    List<Map<String, dynamic>> result = await db.query(itemTable,
+        columns: [columnITCode, columnITItemDetail, columnITTax, columnITUnitPrice],
+        where: '$columnITCode = ?',
+        whereArgs: [id]);
+    if (result.length > 0) {
+      return result;
+    }
+    return null;
   }
 
   // All of the methods (insert, query, update, delete) can also be done using

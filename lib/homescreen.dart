@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:naapos/entities.dart';
+import 'package:naapos/database_helper.dart';
+import 'package:naapos/utils.dart';
 
 class NaaPOSHome extends StatefulWidget {
   NaaPOSHome({Key key, this.title}) : super(key: key);
@@ -14,6 +16,9 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   final itemCodeController = TextEditingController();
   final qtyController = TextEditingController();
 
+  // reference to our single class that manages the database
+  final dbHelper = DatabaseHelper.instance;
+
   double invTotalAmt = 0;
   int invQuantity = 0;
   double invTax = 0;
@@ -23,85 +28,15 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   //Lists of map to store items added
   List<Item> items;
-  List<Item> selectedItems;
+//  List<Item> selectedItems;
 
   @override
   void initState() {
-    selectedItems = [];
+    //selectedItems = [];
     //   items = Item.getItems();
     items = [];
     super.initState();
   }
-
-//  SingleChildScrollView dataBody() {
-//    return SingleChildScrollView(
-//        scrollDirection: Axis.vertical,
-//        child: Container(
-//            child: Row(children: [
-//          Expanded(
-//            child: DataTable(
-//              columnSpacing: 0,
-//              columns: [
-//                DataColumn(
-//                  label: Text(
-//                    "ITEM DETAILS",
-//                    style: TextStyle(
-//                        fontSize: 14.0,
-//                        color: Colors.black,
-//                        fontWeight: FontWeight.bold),
-//                  ),
-//                  numeric: false,
-//                ),
-//                DataColumn(
-//                  label: Text(
-//                    "QUANTITY",
-//                    style: TextStyle(
-//                        fontSize: 14.0,
-//                        color: Colors.black,
-//                        fontWeight: FontWeight.bold),
-//                  ),
-//                  numeric: false,
-//                ),
-//                DataColumn(
-//                  label: Text(
-//                    "PRICE (in Rs)",
-//                    style: TextStyle(
-//                        fontSize: 14.0,
-//                        color: Colors.black,
-//                        fontWeight: FontWeight.bold),
-//                  ),
-//                  numeric: false,
-//                ),
-//              ],
-//              rows: items
-//                  .map(
-//                    (item) => DataRow(
-////                        selected: selectedItems.contains(item),
-////                        onSelectChanged: (b) {
-////                          print("Onselect");
-////                          onSelectedRow(b, item);
-////                        },
-//                        cells: [
-//                          DataCell(
-//                            Text(item.code.toString() + "-" + item.itemDetail),
-//                          ),
-//                          DataCell(
-//                            Center(
-//                                child: Text(
-//                              item.qty,
-//                              textAlign: TextAlign.center,
-//                            )),
-//                          ),
-//                          DataCell(
-//                            Text(item.tax + "% + " + item.unitPrice),
-//                          ),
-//                        ]),
-//                  )
-//                  .toList(),
-//            ),
-//          )
-//        ])));
-//  }
 
   //Increase invoice total amount, total tax and quantity of items
   void increaseInvTotalAmt(double transactionAmount, int itemQty, int taxPerc) {
@@ -111,6 +46,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
       invQuantity = invQuantity + itemQty;
     });
   }
+
 //Decrease all summary amounts when an items is deleted from draft invoice.
   void decreaseInvTotalAmt(double transactionAmount, int itemQty, int taxPerc) {
     setState(() {
@@ -144,6 +80,74 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
     super.dispose();
   }
 
+  //Query database for the user enter item code.
+  queryForItem(String _code, String qty) async {
+    final allRows = await dbHelper.queryITCode(int.parse(_code));
+    print('query one row :' + _code);
+    Item item;
+
+    if (allRows == null) {
+      HelperMethods.showMessage(context, Colors.red, "Item code is invalid. Please add it to the item catalog");
+      //print("Item code is invalid. Please add it to the item catalog first");
+    } else if (allRows.length != 1) {
+      HelperMethods.showMessage(context, Colors.red, "Item code has multiple items. Please correct the item catalog");
+
+//      print(
+//          "Item code has multiple items. Please correct the item catalog first");
+    } else {
+      print("1 row returned");
+      Map<String, Object> row = allRows.elementAt(0);
+      item = new Item();
+      item.code = int.parse(row["code"]);
+      item.itemDetail = row["itemDetail"];
+      item.tax = row["tax"];
+      item.unitPrice = row["unitPrice"];
+      item.qty = qty;
+//      items.add(item);
+
+      double transactionAmount = calculateTransactionAmt(
+          int.parse(item.unitPrice),
+          int.parse(qty),
+          int.parse(item.tax));
+
+      //Add transactiona amount to the invoice total
+      increaseInvTotalAmt(
+          transactionAmount, int.parse(qty), int.parse(item.tax));
+
+      items.add(item);
+
+      //Refresh the list
+      setState(() {});
+
+    }
+    //Refresh screen with items list since this function is an async one
+//    setState(() {});
+    //return item;
+
+
+  }
+
+  //Fetch item details based on code
+//  List<String> fetchItemDetails(String _code) {
+//    //Mock code to create static items list
+//    //Item description, Unit price, Tax percentage
+//
+//    Map<String, List<String>> itemMaster = new Map();
+//    itemMaster['1000'] = ['Idly (3 pcs)', '30', '5'];
+//    itemMaster['1100'] = ['Idly vada combo', '25', '5'];
+//    itemMaster['2000'] = ['Upma', '30', '5'];
+//    itemMaster['2100'] = ['Pongal', '30', '5'];
+//    itemMaster['3000'] = ['Tea', '10', '5'];
+//    itemMaster['3100'] = ['Cofee', '10', '5'];
+//    itemMaster['4000'] = ['Dosa - plain', '30', '5'];
+//    itemMaster['4100'] = ['Dosa - masala', '35', '5'];
+//    itemMaster['4200'] = ['Dosa - onion', '40', '5'];
+//    itemMaster['4300'] = ['Dosa - egg', '40', '5'];
+//
+//    return itemMaster[_code];
+//  }
+
+  //This is the main build method
   @override
   Widget build(BuildContext context) {
     Widget ItemsView = ListView.builder(
@@ -154,36 +158,37 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
           return Card(
               child: ListTile(
             title: Text(items[position].code.toString() +
-                " == " +
+                "    " +
                 items[position].itemDetail +
-                " == Rs. " +
+                "    Rs. " +
                 items[position].unitPrice),
             subtitle: Text("Tax rate : " +
                 items[position].tax +
                 "%" +
-                " == Quantity : " +
-                items[position].qty),
+                "    Quantity : "
+                +
+                items[position].qty
+            ),
             trailing: IconButton(
               icon: Icon(
-                Icons.edit,
+                Icons.delete,
                 size: 25.0,
-                color: Colors.orange,
+                color: Colors.red,
               ),
               onPressed: () {
                 //Remove the item and set state so that screen refreshes with latest data
                 setState(() {
-
                   double transactionAmount = calculateTransactionAmt(
                       int.parse(items[position].unitPrice),
                       int.parse(items[position].qty),
                       int.parse(items[position].tax));
 
-
-                  decreaseInvTotalAmt(transactionAmount,
-                      int.parse(items[position].qty), int.parse(items[position].tax));
+                  decreaseInvTotalAmt(
+                      transactionAmount,
+                      int.parse(items[position].qty),
+                      int.parse(items[position].tax));
 
                   items.removeAt(position);
-
                 });
               },
             ),
@@ -191,7 +196,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         });
 
     Widget itemSummary = Card(
-        color: Colors.deepPurpleAccent,
+        color: Colors.lightBlueAccent,
         child: ListTile(
             title: Text(
               "Tax amount (in Rs) : " + fetchInvoiceTax().toString(),
@@ -247,33 +252,39 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   textColor: Colors.white,
                   color: Colors.green,
                   onPressed: () {
-                    List<String> itemDetails =
-                        fetchItemDetails(itemCodeController.text);
-                    String _itemDesc = itemDetails[0];
-                    String _itemPrice = itemDetails[1];
-                    String _itemTaxPerc = itemDetails[2];
+                    queryForItem(itemCodeController.text, qtyController.text);
+//                    List<String> itemDetails =
+//                        fetchItemDetails(itemCodeController.text);
+//                    String _itemDesc = itemDetails[0];
+//                    String _itemPrice = itemDetails[1];
+//                    String _itemTaxPerc = itemDetails[2];
+//
+//                    double transactionAmount = calculateTransactionAmt(
+//                        int.parse(_itemPrice),
+//                        int.parse(qtyController.text),
+//                        int.parse(_itemTaxPerc));
+//
+//                    Item itemAdd = new Item();
+//                    itemAdd.setItem(
+//                        "",
+//                        int.parse(itemCodeController.text),
+//                        itemDetails[0],
+//                        qtyController.text,
+//                        itemDetails[2],
+//                        itemDetails[1],
+//                        transactionAmount.toString());
+//                    double transactionAmount = calculateTransactionAmt(
+//                        int.parse(itemAdd.unitPrice),
+//                        int.parse(qtyController.text),
+//                        int.parse(itemAdd.tax));
+//
+//                    items.add(itemAdd);
+//
+//                    //Add transactiona amount to the invoice total
+//                    increaseInvTotalAmt(transactionAmount,
+//                        int.parse(qtyController.text), int.parse(itemAdd.tax));
 
-                    double transactionAmount = calculateTransactionAmt(
-                        int.parse(_itemPrice),
-                        int.parse(qtyController.text),
-                        int.parse(_itemTaxPerc));
-
-                    Item itemAdd = new Item();
-                    itemAdd.setItem(
-                        "",
-                        int.parse(itemCodeController.text),
-                        itemDetails[0],
-                        qtyController.text,
-                        itemDetails[2],
-                        itemDetails[1],
-                        transactionAmount.toString());
-                    items.add(itemAdd);
-
-                    //Add transactiona amount to the invoice total
-                    increaseInvTotalAmt(transactionAmount,
-                        int.parse(qtyController.text), int.parse(_itemTaxPerc));
-
-                    setState(() {});
+//                    setState(() {});
 
                     itemCodeController.clear();
                     qtyController.clear();
@@ -292,18 +303,15 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
       body: Column(
         children: [
           selectItem,
-//          selectedItemsList,
           Divider(
             height: 2.0,
             color: Colors.grey,
           ),
-//          invoiceTotal,
           itemSummary,
           Divider(
             height: 2.0,
             color: Colors.grey,
           ),
-//          dataBody(),
           ItemsView,
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -312,71 +320,12 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
           ),
         ],
       ),
-//      bottomNavigationBar: BottomAppBar(
-//          child: new Row(
-//              mainAxisSize: MainAxisSize.max,
-//              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//              children: <Widget>[
-////            SizedBox(width: 0),
-//            IconButton(
-//              icon: Icon(
-//                Icons.home,
-//                size: 40.0,
-//                color: Colors.deepPurpleAccent,
-//              ),
-//            ),
-//            IconButton(
-//              onPressed: (){
-//                Navigator.pushNamed(context, '/second');
-//              },
-//              icon: Icon(
-//                Icons.shopping_cart,
-//                size: 40.0,
-//                color: Colors.deepPurpleAccent,
-//              ),
-//            ),
-//            IconButton(
-//              icon: Icon(
-//                Icons.list,
-//                size: 40.0,
-//                color: Colors.deepPurpleAccent,
-//              ),
-//            ),
-//            IconButton(
-//
-//              icon: Icon(
-//                Icons.library_books,
-//                size: 40.0,
-//                color: Colors.deepPurpleAccent,
-//              ),
-//            )
-//          ])),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
-        onPressed: () {},
+        onPressed: () {
+          HelperMethods.showMessage(context, Colors.blue, "Save invoice feature is not yet implemented");
+        },
       ),
     );
-
-//        persistentFooterButtons: <Widget>[invoiceFooter]);
   }
-}
-
-//Fetch item details based on code
-List<String> fetchItemDetails(String _code) {
-  //Mock code to create static items list
-  //Item description, Unit price, Tax percentage
-
-  Map<String, List<String>> itemMaster = new Map();
-  itemMaster['1000'] = ['Idly (3 pcs)', '30', '5'];
-  itemMaster['1100'] = ['Idly vada combo', '25', '5'];
-  itemMaster['2000'] = ['Upma', '30', '5'];
-  itemMaster['2100'] = ['Pongal', '30', '5'];
-  itemMaster['3000'] = ['Tea', '10', '5'];
-  itemMaster['3100'] = ['Cofee', '10', '5'];
-  itemMaster['4000'] = ['Dosa - plain', '30', '5'];
-  itemMaster['4100'] = ['Dosa - masala', '35', '5'];
-  itemMaster['4200'] = ['Dosa - onion', '40', '5'];
-  itemMaster['4300'] = ['Dosa - egg', '40', '5'];
-
-  return itemMaster[_code];
 }
