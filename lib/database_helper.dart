@@ -24,6 +24,9 @@ class DatabaseHelper {
   static final columnIVoperatorId = 'operatorId';
   static final columnIVstoreId = 'storeId';
   static final columnIVinvoiceNumber = 'invoiceNumber';
+  static final columnIVinvoiceAmount = 'invoiceAmount';
+  static final columnIVinvoiceTax = 'invoiceTax';
+  static final columnIVinvoiceQuantity = 'invoiceQuantity';
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -63,8 +66,11 @@ class DatabaseHelper {
             $columnIVtransactions TEXT NOT NULL,
             $columnIVinvoiceDateTime TEXT,
             $columnIVoperatorId TEXT,
-            $columnIVstoreId TEXT        
-          )
+            $columnIVstoreId TEXT,
+            $columnIVinvoiceAmount TEXT,
+            $columnIVinvoiceQuantity TEXT,
+            $columnIVinvoiceTax TEXT                   
+          );
           ''');
   }
 

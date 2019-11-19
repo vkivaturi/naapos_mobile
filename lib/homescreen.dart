@@ -33,9 +33,11 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   @override
   void initState() {
-    //selectedItems = [];
-    //   items = Item.getItems();
     items = [];
+    double invTotalAmt = 0;
+    int invQuantity = 0;
+    double invTax = 0;
+
     super.initState();
   }
 
@@ -168,7 +170,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         color: Colors.lightBlueAccent,
         child: ListTile(
             title: Text(
-              "Tax amount (in Rs) : " + fetchInvoiceTax().toString(),
+              "Tax amount (in Rs) : " + invTax.toString(),
               textAlign: TextAlign.left,
               style: TextStyle(
                   fontSize: 15.0,
@@ -176,7 +178,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              "Number of items     : " + fetchInvoiceQuantity().toString(),
+              "Number of items     : " + invQuantity.toString(),
               textAlign: TextAlign.left,
               style: TextStyle(
                   fontSize: 15.0,
@@ -184,7 +186,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   fontWeight: FontWeight.bold),
             ),
             trailing: Text(
-              "Rs. " + fetchInvoiceTotal().toString(),
+              "Rs. " + invTotalAmt.toString(),
               textAlign: TextAlign.right,
               style: TextStyle(
                   fontSize: 35.0,
@@ -262,7 +264,17 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         onPressed: () {
           if (items.length > 0) {
             Invoice invoice = InvoiceHelpers.buildInvoice(items);
+            invoice.invoiceAmount = invTotalAmt;
+            invoice.invoiceQuantity = invQuantity;
+            invoice.invoiceTax = invTax;
+
             InvoiceHelpers.insert(invoice, dbHelper, context);
+
+            //TODO - Resetting values without checking for success of database operation
+            setState(() {
+              items = [];
+            });
+
           } else {
             HelperMethods.showMessage(context, Colors.deepOrange,
                 "Please add at least 1 item to create invoice");

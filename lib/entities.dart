@@ -50,27 +50,49 @@ class Invoice {
   String operatorId;
   String storeId;
   int invoiceNumber;
+  double invoiceAmount;
+  int invoiceQuantity;
+  double invoiceTax;
 
   Invoice(
       {this.transactionsCSV,
       this.invoiceDateTime,
       this.operatorId,
       this.storeId,
-      this.invoiceNumber});
+      this.invoiceNumber,
+      this.invoiceAmount,
+      this.invoiceQuantity,
+      this.invoiceTax});
 
-  void setItem(String transactionsCSV, String invoiceDateTime,
-      String operatorId, String storeId, int invoiceNumber) {
+  void setItem(
+      String transactionsCSV,
+      String invoiceDateTime,
+      String operatorId,
+      String storeId,
+      int invoiceNumber,
+      double invoiceAMount,
+      int invoiceQuantity,
+      double invoiceTax) {
     this.transactionsCSV = transactionsCSV;
     this.invoiceDateTime = invoiceDateTime;
     this.operatorId = operatorId;
     this.storeId = storeId;
     this.invoiceNumber = invoiceNumber;
+    this.invoiceAmount = invoiceAmount;
+    this.invoiceQuantity = invoiceQuantity;
+    this.invoiceTax = invoiceTax;
   }
 
   @override
   String toString() {
     String delimiter = " ### ";
     return invoiceNumber.toString() +
+        delimiter +
+        invoiceAmount.toString() +
+        delimiter +
+        invoiceQuantity.toString() +
+        delimiter +
+        invoiceTax.toString() +
         delimiter +
         transactionsCSV +
         delimiter +

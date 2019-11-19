@@ -16,14 +16,15 @@ class InvoiceHelpers {
       DatabaseHelper.columnIVoperatorId: invoice.operatorId,
       DatabaseHelper.columnIVinvoiceDateTime: invoice.invoiceDateTime,
       DatabaseHelper.columnIVstoreId: invoice.storeId,
+      DatabaseHelper.columnIVinvoiceAmount: invoice.invoiceAmount,
+      DatabaseHelper.columnIVinvoiceTax: invoice.invoiceTax,
+      DatabaseHelper.columnIVinvoiceQuantity: invoice.invoiceQuantity,
     };
     print(row.toString());
     final id = await dbHelper.insertIV(row);
 
     HelperMethods.showMessage(context, Colors.green,
-        "Invoice created succesfully - $id");
-
-    print('inserted invoice row id: $id');
+        "Invoice created succesfully : " + invoice.invoiceNumber.toString());
   }
 
   //Build invoice entity

@@ -9,23 +9,6 @@ import 'package:naapos/utils.dart';
 
 void main() => runApp(NaaPOSApp());
 
-//class NaaPOSApp extends StatelessWidget {
-//  // This widget is the root of your application.
-//  @override
-//  Widget build(BuildContext context) {
-//    return MaterialApp(
-//
-//      title: 'NaaPOS - Handhelp POS for small businesses',
-//      theme: ThemeData(
-//        primarySwatch: Colors.blue,
-//      ),
-////      home: NaaPOSHome(title: 'Add to cart'),
-////      home: ManageItem(title: 'Manage Items'),
-//      home: MainScreen(),
-//    );
-//  }
-//}
-
 class NaaPOSApp extends StatefulWidget {
   @override
   _NaaPOSApp createState() => _NaaPOSApp();
