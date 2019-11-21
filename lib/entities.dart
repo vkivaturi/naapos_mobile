@@ -1,3 +1,6 @@
+import 'package:charts_flutter/flutter.dart';
+import 'package:flutter/material.dart';
+
 //Item entity is used in multiple places - while creating an invoice, managing product catalog and dashboards
 class Item {
   int code;
@@ -45,7 +48,7 @@ class Item {
 
 class Invoice {
   //List of transactions to be included in the invoice. Each transaction comprises of the item details and total amount for the item.
-  String transactionsCSV;
+//  String transactionsCSV;
   String invoiceDateTime;
   String operatorId;
   String storeId;
@@ -55,7 +58,8 @@ class Invoice {
   double invoiceTax;
 
   Invoice(
-      {this.transactionsCSV,
+      {
+//        this.transactionsCSV,
       this.invoiceDateTime,
       this.operatorId,
       this.storeId,
@@ -73,7 +77,7 @@ class Invoice {
       double invoiceAMount,
       int invoiceQuantity,
       double invoiceTax) {
-    this.transactionsCSV = transactionsCSV;
+ //   this.transactionsCSV = transactionsCSV;
     this.invoiceDateTime = invoiceDateTime;
     this.operatorId = operatorId;
     this.storeId = storeId;
@@ -94,7 +98,7 @@ class Invoice {
         delimiter +
         invoiceTax.toString() +
         delimiter +
-        transactionsCSV +
+//        transactionsCSV +
         delimiter +
         invoiceDateTime +
         delimiter +
@@ -102,4 +106,11 @@ class Invoice {
         delimiter +
         storeId;
   }
+}
+
+class TopOrders {
+  final int invoiceNumber;
+  final double invoiceAmount;
+
+  TopOrders(this.invoiceNumber, this.invoiceAmount, Color color);
 }

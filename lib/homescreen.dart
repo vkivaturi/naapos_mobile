@@ -129,45 +129,46 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         itemCount: items.length,
         itemBuilder: (context, position) {
           return Card(
+              elevation: 2.0,
               child: ListTile(
-            title: Text(items[position].code.toString() +
-                "    " +
-                items[position].itemDetail +
-                "    Rs. " +
-                items[position].unitPrice),
-            subtitle: Text("Tax rate : " +
-                items[position].tax +
-                "%" +
-                "    Quantity : " +
-                items[position].qty),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.delete,
-                size: 25.0,
-                color: Colors.red,
-              ),
-              onPressed: () {
-                //Remove the item and set state so that screen refreshes with latest data
-                setState(() {
-                  double transactionAmount = calculateTransactionAmt(
-                      int.parse(items[position].unitPrice),
-                      int.parse(items[position].qty),
-                      int.parse(items[position].tax));
+                title: Text(items[position].code.toString() +
+                    "    " +
+                    items[position].itemDetail +
+                    "    Rs. " +
+                    items[position].unitPrice),
+                subtitle: Text("Tax rate : " +
+                    items[position].tax +
+                    "%" +
+                    "    Quantity : " +
+                    items[position].qty),
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.delete,
+                    size: 25.0,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    //Remove the item and set state so that screen refreshes with latest data
+                    setState(() {
+                      double transactionAmount = calculateTransactionAmt(
+                          int.parse(items[position].unitPrice),
+                          int.parse(items[position].qty),
+                          int.parse(items[position].tax));
 
-                  decreaseInvTotalAmt(
-                      transactionAmount,
-                      int.parse(items[position].qty),
-                      int.parse(items[position].tax));
+                      decreaseInvTotalAmt(
+                          transactionAmount,
+                          int.parse(items[position].qty),
+                          int.parse(items[position].tax));
 
-                  items.removeAt(position);
-                });
-              },
-            ),
-          ));
+                      items.removeAt(position);
+                    });
+                  },
+                ),
+              ));
         });
 
     Widget itemSummary = Card(
-        color: Colors.lightBlueAccent,
+        color: Colors.black,
         child: ListTile(
             title: Text(
               "Tax amount (in Rs) : " + invTax.toString(),
@@ -236,8 +237,12 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Customer billing"),
-        backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
+        title: Text(
+          "Customer billing",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 25.0, color: Colors.white),
+        ),
+        //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
       body: Column(
         children: [
@@ -263,18 +268,19 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         child: Icon(Icons.save),
         onPressed: () {
           if (items.length > 0) {
-            Invoice invoice = InvoiceHelpers.buildInvoice(items);
-            invoice.invoiceAmount = invTotalAmt;
-            invoice.invoiceQuantity = invQuantity;
-            invoice.invoiceTax = invTax;
+            Invoice invoice = InvoiceHelpers.buildInvoice(
+                items, invTotalAmt, invQuantity, invTax);
 
-            InvoiceHelpers.insert(invoice, dbHelper, context);
+            //            invoice.invoiceAmount = invTotalAmt;
+//            invoice.invoiceQuantity = invQuantity;
+//            invoice.invoiceTax = invTax;
+
+            InvoiceHelpers.insert(invoice, items, dbHelper, context);
 
             //TODO - Resetting values without checking for success of database operation
             setState(() {
               items = [];
             });
-
           } else {
             HelperMethods.showMessage(context, Colors.deepOrange,
                 "Please add at least 1 item to create invoice");

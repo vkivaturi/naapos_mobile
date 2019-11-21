@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:naapos/database_helper.dart';
 import 'package:naapos/entities.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class ManageItem extends StatefulWidget {
   ManageItem({Key key, this.title}) : super(key: key);
@@ -40,118 +41,211 @@ class ManageItemState extends State<ManageItem> {
         itemCount: items.length,
         itemBuilder: (context, position) {
           return Card(
+              elevation: 2.0,
               child: ListTile(
-            title: Text(
-              items[position].code.toString() + " == " + items[position].itemDetail + " == Rs. " + items[position].unitPrice
-            ),
-            subtitle: Text("Tax rate : " + items[position].tax + "%"),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.edit,
-                size: 25.0,
-                color: Colors.orange,
-              ),
-              onPressed: () {
-                _editItemDialog(position);
-              },
-            ),
-          ));
+                title: Text(items[position].code.toString() +
+                    " == " +
+                    items[position].itemDetail +
+                    " == Rs. " +
+                    items[position].unitPrice),
+                subtitle: Text("Tax rate : " + items[position].tax + "%"),
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    size: 25.0,
+                    color: Colors.orange,
+                  ),
+                  onPressed: () {
+                    _editItemCustomDialog(position);
+                  },
+                ),
+              ));
         });
-
-//    Widget ItemsView = ListView.builder(
-//      scrollDirection: Axis.vertical,
-//      shrinkWrap: true,
-//      itemCount: items.length,
-//      itemBuilder: (context, position) {
-//        return Column(
-//          children: <Widget>[
-//            Row(
-//              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//              children: <Widget>[
-//                Column(
-//                  crossAxisAlignment: CrossAxisAlignment.start,
-//                  children: <Widget>[
-//                    Padding(
-//                      padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 6.0),
-//                      child: Text(
-//                        //sendersList[position],
-//                        "[" +
-//                            items[position].code.toString() +
-//                            "] " +
-//                            items[position].itemDetail,
-//                        style: TextStyle(
-//                            fontSize: 22.0, fontWeight: FontWeight.bold),
-//                      ),
-//                    ),
-//                    Padding(
-//                      padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 12.0),
-//                      child: Text(
-//                        //subjectList[position],
-//                        "Tax rate : " + items[position].tax + "%",
-//                        style: TextStyle(fontSize: 14.0),
-//                      ),
-//                    ),
-//                  ],
-//                ),
-//                Padding(
-//                  padding: const EdgeInsets.all(14.0),
-//                  child: Column(
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                    children: <Widget>[
-//                      Text(
-//                        "Rs " + items[position].unitPrice,
-//                        style: TextStyle(color: Colors.black),
-//                      ),
-//                      Padding(
-//                          padding: const EdgeInsets.all(8.0),
-//                          child: IconButton(
-//                            icon: Icon(
-//                              Icons.edit,
-//                              size: 25.0,
-//                              color: Colors.green,
-//                            ),
-//                            onPressed: () {
-//                              _editItemDialog(position);
-//                            },
-//                          )),
-//                    ],
-//                  ),
-//                ),
-//              ],
-//            ),
-//            Divider(
-//              height: 2.0,
-//              color: Colors.grey,
-//            )
-//          ],
-//        );
-//      },
-//    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage items'),
-        backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Divider(
-              height: 2.0,
-              color: Colors.grey,
-            ),
-            ItemsView
-          ],
+        title: Text(
+          'Manage items',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 25.0, color: Colors.white),
         ),
       ),
+      body: SingleChildScrollView(
+          child: ConstrainedBox(
+              constraints: BoxConstraints(),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Divider(
+                      height: 2.0,
+                      color: Colors.grey,
+                    ),
+                    ItemsView
+                  ],
+                ),
+              ))),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          _editItemDialog(-1);
+          //_editItemDialog(-1);
+          _editItemCustomDialog(-1);
         },
       ),
     );
+  }
+
+  _editItemCustomDialog(int position) {
+    //Use the same dialog box for creation of new item or update/delete of existing item.
+    bool isNewItem = position == -1 ? true : false;
+    String headerText = isNewItem
+        ? "Create new item"
+        : "Update / delete item code " + items[position].code.toString();
+
+    if (isNewItem) {
+      headerText = "Create new item";
+
+      itemCodeController.text = '';
+      itemDetailController.text = '';
+      itemTaxController.text = '';
+      itemUnitPriceController.text = '';
+    } else {
+      headerText =
+          "Update / delete item code " + items[position].code.toString();
+
+      //Since this is the update scenario, prefill text boxes with item values
+      itemCodeController.text = items[position].code.toString();
+      itemDetailController.text = items[position].itemDetail;
+      itemTaxController.text = items[position].tax;
+      itemUnitPriceController.text = items[position].unitPrice;
+    }
+
+    return Alert(
+        context: context,
+        title: headerText,
+        content: Column(
+          children: <Widget>[
+            Visibility(
+                visible: isNewItem,
+                child: TextField(
+                  decoration: InputDecoration(
+                    icon: Icon(Icons.adjust),
+                    labelText: 'Item code (number only)',
+                  ),
+                  keyboardType: TextInputType.number,
+                  controller: itemCodeController,
+                )),
+            TextField(
+              decoration: InputDecoration(
+                icon: Icon(Icons.adjust),
+                labelText: 'Item description',
+              ),
+              keyboardType: TextInputType.text,
+              controller: itemDetailController,
+            ),
+            TextField(
+              decoration: InputDecoration(
+                icon: Icon(Icons.adjust),
+                labelText: 'Tax % (number only)',
+              ),
+              keyboardType: TextInputType.number,
+              controller: itemTaxController,
+            ),
+            TextField(
+              decoration: InputDecoration(
+                icon: Icon(Icons.adjust),
+                labelText: 'Unit price (number only)',
+              ),
+              keyboardType: TextInputType.number,
+              controller: itemUnitPriceController,
+            ),
+          ],
+        ),
+        buttons: [
+          DialogButton(
+//            onPressed: () => Navigator.pop(context),
+            child: Visibility(
+                visible: isNewItem,
+                child: Text(
+                  "CREATE ITEM",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                )),
+            onPressed: () {
+              Item uItem = new Item();
+
+              uItem.unitPrice = itemUnitPriceController.text;
+              uItem.tax = itemTaxController.text;
+              uItem.itemDetail = itemDetailController.text;
+              //Fetch code value from user entered data. Item code is read-only in update and delete cases.
+              uItem.code = int.parse(itemCodeController.text);
+
+              _insert(uItem);
+
+              setState(() {
+                //items[position] = uItem;
+                _queryAll();
+              });
+
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+          ),          DialogButton(
+//            onPressed: () => Navigator.pop(context),
+            child: Visibility(
+                visible: !isNewItem,
+                child: Text(
+                  "UPDATE ITEM",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                )),
+            onPressed: () {
+              Item uItem = new Item();
+
+              uItem.unitPrice = itemUnitPriceController.text;
+              uItem.tax = itemTaxController.text;
+              uItem.itemDetail = itemDetailController.text;
+              uItem.code =
+                  int.parse(items[position].code.toString());
+
+              _update(uItem);
+
+              setState(() {
+                //items[position] = uItem;
+                _queryAll();
+              });
+
+              Navigator.of(context, rootNavigator: true)
+                  .pop();
+
+            },
+          ),          DialogButton(
+//            onPressed: () => Navigator.pop(context),
+            child: Visibility(
+                visible: isNewItem,
+                child: Text(
+                  "CREATE ITEM",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                )),
+            onPressed: () {
+              Item uItem = new Item();
+
+              uItem.unitPrice = itemUnitPriceController.text;
+              uItem.tax = itemTaxController.text;
+              uItem.itemDetail = itemDetailController.text;
+              //Fetch code value from user entered data. Item code is read-only in update and delete cases.
+              uItem.code = int.parse(itemCodeController.text);
+
+              _insert(uItem);
+
+              setState(() {
+                //items[position] = uItem;
+                _queryAll();
+              });
+
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+          )
+
+
+        ]).show();
   }
 
   //Dialog box for edit or delete items based on user input

@@ -89,6 +89,6 @@ class HelperMethods {
       rows.add(row);
     }
 
-    return ListToCsvConverter().convert(rows);
+    return ListToCsvConverter(fieldDelimiter: "^").convert(rows);
   }
 }

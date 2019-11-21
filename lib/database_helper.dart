@@ -17,9 +17,13 @@ class DatabaseHelper {
   static final columnITTax = 'tax';
   static final columnITUnitPrice = 'unitPrice';
 
+  //Table to store transactions that are part of an invoice. This table includes all columns from Items table
+  static final transactionTable = 'transaction_table';
+  static final columnTRTransactionPrice = 'transactionPrice';
+  static final columnTRTransactionNumber = 'transactionNumber';
+
   //Table to store invoice information
   static final invoiceTable = 'invoice_table';
-  static final columnIVtransactions = 'transactions';
   static final columnIVinvoiceDateTime = 'invoiceDateTime';
   static final columnIVoperatorId = 'operatorId';
   static final columnIVstoreId = 'storeId';
@@ -60,10 +64,26 @@ class DatabaseHelper {
           )
           ''');
 
+//    await db.execute('''
+//DROP TABLE $transactionTable          ''');
+//
+//    await db.execute('''
+//DROP TABLE $invoiceTable          ''');
+
+    await db.execute('''
+          CREATE TABLE IF NOT EXISTS $transactionTable (
+            $columnTRTransactionNumber INT PRIMARY KEY,
+            $columnTRTransactionPrice TEXT NOT NULL,
+            $columnITCode INT,
+            $columnITItemDetail TEXT NOT NULL,
+            $columnITTax TEXT NOT NULL,
+            $columnITUnitPrice TEXT NOT NULL
+          )
+          ''');
+
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $invoiceTable (
             $columnIVinvoiceNumber INT PRIMARY KEY,
-            $columnIVtransactions TEXT NOT NULL,
             $columnIVinvoiceDateTime TEXT,
             $columnIVoperatorId TEXT,
             $columnIVstoreId TEXT,
@@ -80,6 +100,10 @@ class DatabaseHelper {
   Future<int> insertIT(Map<String, dynamic> row) async {
     Database db = await instance.database;
     return await db.insert(itemTable, row);
+  }
+  Future<int> insertTR(Map<String, dynamic> row) async {
+    Database db = await instance.database;
+    return await db.insert(transactionTable, row);
   }
   Future<int> insertIV(Map<String, dynamic> row) async {
     Database db = await instance.database;
@@ -115,17 +139,29 @@ class DatabaseHelper {
     }
     return null;
   }
-  Future<List<Map<String, dynamic>>> queryIVCode(int id) async {
+
+  //Fetch list of invoices based on input range
+  Future<List<Map<String, dynamic>>> queryTRTransactionRange(int startTrn, int endTrn) async {
     Database db = await instance.database;
+
+    List<Map<String, dynamic>> result = await db.query(transactionTable,
+        where: '$columnTRTransactionNumber >= ? and $columnTRTransactionNumber <= ?',
+        whereArgs: [startTrn, endTrn]);
+    print("#### Result : " + result.length.toString());
+    if (result.length > 0) {
+      return result;
+    }
+    return [];
+  }
+
+  //Fetch list of invoices based on input range
+  Future<List<Map<String, dynamic>>> queryIVInvoiceRange(int startInv, int endInv) async {
+    Database db = await instance.database;
+
     List<Map<String, dynamic>> result = await db.query(invoiceTable,
-        columns: [
-          columnIVtransactions,
-          columnIVstoreId,
-          columnIVinvoiceDateTime,
-          columnIVoperatorId
-        ],
-        where: '$columnIVinvoiceNumber = ?',
-        whereArgs: [id]);
+        where: '$columnIVinvoiceNumber >= ? and $columnIVinvoiceNumber <= ?',
+        whereArgs: [startInv, endInv]);
+    print("#### Result : " + result.length.toString());
     if (result.length > 0) {
       return result;
     }
@@ -153,12 +189,12 @@ class DatabaseHelper {
     return await db
         .update(itemTable, row, where: '$columnITCode = ?', whereArgs: [id]);
   }
-  Future<int> updateIV(Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    int id = row[columnIVinvoiceNumber];
-    return await db
-        .update(invoiceTable, row, where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
-  }
+//  Future<int> updateIV(Map<String, dynamic> row) async {
+//    Database db = await instance.database;
+//    int id = row[columnIVinvoiceNumber];
+//    return await db
+//        .update(invoiceTable, row, where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
+//  }
 
   // Deletes the row specified by the id. The number of affected rows is
   // returned. This should be 1 as long as the row exists.

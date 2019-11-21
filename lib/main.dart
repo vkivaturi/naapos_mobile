@@ -15,7 +15,7 @@ class NaaPOSApp extends StatefulWidget {
 }
 
 class _NaaPOSApp extends State<NaaPOSApp> {
-  bool isDark = false;
+  bool isDark = true;
 
   @override
   void initState() {
