@@ -30,7 +30,8 @@ class InvoiceHelpers {
     for (var item in items) {
 
       Map<String, dynamic> row = {
-        DatabaseHelper.columnTRTransactionNumber: invoice.invoiceNumber + trnNumber++,
+        DatabaseHelper.columnTRTransactionNumber: trnNumber++,
+        DatabaseHelper.columnIVinvoiceNumber: invoice.invoiceNumber,
         DatabaseHelper.columnITCode: item.code,
         DatabaseHelper.columnITItemDetail: item.itemDetail,
         DatabaseHelper.columnITTax: item.tax,

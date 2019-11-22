@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/charts_top_orders.dart';
+import 'package:naapos/charts_top_items.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -24,16 +24,16 @@ class _DashboardState extends State<Dashboard> {
           crossAxisCount: 2,
 //          padding: EdgeInsets.all(3.0),
           children: <Widget>[
-            makeDashboardItem("Top 5 orders", Icons.list, Colors.pinkAccent, TopOrdersChart.withSampleData()),
+            makeDashboardItem("Top 5 selling items", Icons.list, Colors.pinkAccent, TopItemChart()),
             makeDashboardItem(
-                "Top 5 selling items", Icons.highlight, Colors.lightBlueAccent, TopOrdersChart.withSampleData()),
-            makeDashboardItem(
-                "Weekly order timeline", Icons.graphic_eq, Colors.yellow, TopOrdersChart.withSampleData()),
-            makeDashboardItem(
-                "Weekly order values", Icons.show_chart, Colors.orange, TopOrdersChart.withSampleData()),
-            makeDashboardItem(
-                "View last order", Icons.remove_red_eye, Colors.green, TopOrdersChart.withSampleData()),
-            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, TopOrdersChart.withSampleData())
+                "Top 5 orders", Icons.highlight, Colors.lightBlueAccent, TopItemChart()),
+//            makeDashboardItem(
+//                "Weekly order timeline", Icons.graphic_eq, Colors.yellow, TopOrdersChart()),
+//            makeDashboardItem(
+//                "Weekly order values", Icons.show_chart, Colors.orange, TopOrdersChart()),
+//            makeDashboardItem(
+//                "View last order", Icons.remove_red_eye, Colors.green, TopOrdersChart()),
+//            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, TopOrdersChart())
           ],
         ),
       ),

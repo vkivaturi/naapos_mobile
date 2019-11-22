@@ -4,7 +4,7 @@ import 'package:naapos/homescreen.dart';
 import 'package:naapos/invoice_screen.dart';
 import 'package:naapos/items_catalog.dart';
 import 'package:naapos/utils.dart';
-import 'package:naapos/charts_top_orders.dart';
+import 'package:naapos/charts_top_items.dart';
 
 class MainScreen extends StatefulWidget {
   @override

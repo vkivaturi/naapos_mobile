@@ -49,8 +49,11 @@ class DatabaseHelper {
   _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onOpen: _onCreate, );
+    return await openDatabase(
+      path,
+      version: _databaseVersion,
+      onOpen: _onCreate,
+    );
   }
 
   // SQL code to create the database table
@@ -72,13 +75,15 @@ class DatabaseHelper {
 
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $transactionTable (
-            $columnTRTransactionNumber INT PRIMARY KEY,
+            $columnTRTransactionNumber INT NOT NULL,
+            $columnIVinvoiceNumber INT NOT NULL,
             $columnTRTransactionPrice TEXT NOT NULL,
             $columnITCode INT,
             $columnITItemDetail TEXT NOT NULL,
             $columnITTax TEXT NOT NULL,
-            $columnITUnitPrice TEXT NOT NULL
-          )
+            $columnITUnitPrice TEXT NOT NULL,
+            PRIMARY KEY($columnIVinvoiceNumber, $columnTRTransactionNumber)
+          ) 
           ''');
 
     await db.execute('''
@@ -101,10 +106,12 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.insert(itemTable, row);
   }
+
   Future<int> insertTR(Map<String, dynamic> row) async {
     Database db = await instance.database;
     return await db.insert(transactionTable, row);
   }
+
   Future<int> insertIV(Map<String, dynamic> row) async {
     Database db = await instance.database;
     return await db.insert(invoiceTable, row);
@@ -116,6 +123,7 @@ class DatabaseHelper {
     Database db = await instance.database;
     return await db.query(itemTable);
   }
+
   Future<List<Map<String, dynamic>>> queryIVAllRows() async {
     Database db = await instance.database;
     return await db.query(invoiceTable);
@@ -141,11 +149,13 @@ class DatabaseHelper {
   }
 
   //Fetch list of invoices based on input range
-  Future<List<Map<String, dynamic>>> queryTRTransactionRange(int startTrn, int endTrn) async {
+  Future<List<Map<String, dynamic>>> queryTRTransactionRange(
+      int startTrn, int endTrn) async {
     Database db = await instance.database;
 
     List<Map<String, dynamic>> result = await db.query(transactionTable,
-        where: '$columnTRTransactionNumber >= ? and $columnTRTransactionNumber <= ?',
+        where:
+            '$columnTRTransactionNumber >= ? and $columnTRTransactionNumber <= ?',
         whereArgs: [startTrn, endTrn]);
     print("#### Result : " + result.length.toString());
     if (result.length > 0) {
@@ -155,7 +165,8 @@ class DatabaseHelper {
   }
 
   //Fetch list of invoices based on input range
-  Future<List<Map<String, dynamic>>> queryIVInvoiceRange(int startInv, int endInv) async {
+  Future<List<Map<String, dynamic>>> queryIVInvoiceRange(
+      int startInv, int endInv) async {
     Database db = await instance.database;
 
     List<Map<String, dynamic>> result = await db.query(invoiceTable,
@@ -175,6 +186,7 @@ class DatabaseHelper {
     return Sqflite.firstIntValue(
         await db.rawQuery('SELECT COUNT(*) FROM $itemTable'));
   }
+
   Future<int> queryIVRowCount() async {
     Database db = await instance.database;
     return Sqflite.firstIntValue(
@@ -203,10 +215,31 @@ class DatabaseHelper {
     return await db
         .delete(itemTable, where: '$columnITCode = ?', whereArgs: [id]);
   }
+
   Future<int> deleteIV(int id) async {
     Database db = await instance.database;
-    return await db
-        .delete(invoiceTable, where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
+    return await db.delete(invoiceTable,
+        where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
   }
 
+  //Reporting queries
+
+  //Fetch top n items sold in a specific date range
+  Future<List<Map<String, dynamic>>> queryTRTopItemsSold(
+      int startInv, int endInv, int reqRows) async {
+    Database db = await instance.database;
+
+    List<Map> result = await db.rawQuery(
+        'SELECT $columnITItemDetail, COUNT(*) AS soldCount FROM $transactionTable '
+        'WHERE $columnITItemDetail IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
+        'GROUP BY $columnITItemDetail '
+        'ORDER BY COUNT(*) DESC '
+        'LIMIT $reqRows',
+        [startInv, endInv]);
+    print("#### Result : " + result.toString());
+    if (result.length > 0) {
+      return result;
+    }
+    return null;
+  }
 }

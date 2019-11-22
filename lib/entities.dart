@@ -108,9 +108,9 @@ class Invoice {
   }
 }
 
-class TopOrders {
-  final int invoiceNumber;
-  final double invoiceAmount;
+class TopItemsSold {
+  final String item;
+  final int sales;
 
-  TopOrders(this.invoiceNumber, this.invoiceAmount, Color color);
+  TopItemsSold(this.item, this.sales);
 }
