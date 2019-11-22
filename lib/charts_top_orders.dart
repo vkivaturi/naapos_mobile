@@ -5,28 +5,29 @@ import 'package:naapos/utils_invoice.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 
-class TopItemChart extends StatefulWidget {
-  TopItemChart({Key key, this.title}) : super(key: key);
+//This class renders the graph for top orders by their amount
+class TopOrderChart extends StatefulWidget {
+  TopOrderChart({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  TopItemChartState createState() => TopItemChartState();
+  TopOrderChartState createState() => TopOrderChartState();
 }
 
-class TopItemChartState extends State<TopItemChart> {
+class TopOrderChartState extends State<TopOrderChart> {
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
   //Lists of map to store invoices
-  List<TopItemsSold> topItemsSoldList;
+  List<TopOrdersSold> topOrdersSoldList;
 
   @override
   void initState() {
-    topItemsSoldList = [];
+    topOrdersSoldList = [];
     super.initState();
 
     //Load all items initially
-    _queryTopSoldItems();
+    _queryTopSoldOrders();
   }
 
   // homepage layout
@@ -35,7 +36,7 @@ class TopItemChartState extends State<TopItemChart> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Top 5 items sold today ',
+            'Top 5 orders of today ',
             textAlign: TextAlign.left,
             style: TextStyle(fontSize: 25.0, color: Colors.white),
           ),
@@ -49,13 +50,15 @@ class TopItemChartState extends State<TopItemChart> {
                   width: MediaQuery.of(context).size.width,
                   child: new charts.BarChart(
                     [
-                      new charts.Series<TopItemsSold, String>(
+                      new charts.Series<TopOrdersSold, String>(
                         id: 'Sales',
                         colorFn: (_, __) =>
                             charts.MaterialPalette.blue.shadeDefault,
-                        domainFn: (TopItemsSold sales, _) => sales.item,
-                        measureFn: (TopItemsSold sales, _) => sales.sales,
-                        data: topItemsSoldList,
+                        domainFn: (TopOrdersSold sales, _) =>
+                            sales.invoiceNumber.toString(),
+                        measureFn: (TopOrdersSold sales, _) =>
+                            sales.invoiceAmount,
+                        data: topOrdersSoldList,
                       )
                     ],
                     animate: true,
@@ -66,29 +69,30 @@ class TopItemChartState extends State<TopItemChart> {
   }
 
   //Fetch top items list from backend.
-  void _queryTopSoldItems() async {
-
+  void _queryTopSoldOrders() async {
     //Set start and end date as today and execute top orders query
     final invNumberFormat = new DateFormat('yyyyMMdd');
     var now = DateTime.now();
-    int searchStartDate = int.parse(int.parse(invNumberFormat.format(now)).toString() + "000000");
-    int searchEndDate = int.parse(int.parse(invNumberFormat.format(now)).toString() + "235959");
+    int searchStartDate =
+        int.parse(int.parse(invNumberFormat.format(now)).toString() + "000000");
+    int searchEndDate =
+        int.parse(int.parse(invNumberFormat.format(now)).toString() + "235959");
     int topItemsNum = 5;
 
-    final allRows =
-        await dbHelper.queryTRTopItemsSold(searchStartDate, searchEndDate, topItemsNum);
+    final allRows = await dbHelper.queryTRTopOrdersSold(
+        searchStartDate, searchEndDate, topItemsNum);
 
-    topItemsSoldList = [];
+    topOrdersSoldList = [];
 
-    allRows.forEach((row) => _addTopItemsToList(row));
+    allRows.forEach((row) => _addTopOrdersToList(row));
 
     //Refresh screen with invoices list since this function is an async one
     setState(() {});
   }
 
-  void _addTopItemsToList(Map<String, Object> row) {
-    TopItemsSold invoice =
-        new TopItemsSold(row["itemDetail"], row["soldCount"]);
-    topItemsSoldList.add(invoice);
+  void _addTopOrdersToList(Map<String, Object> row) {
+    TopOrdersSold topOrder =
+        new TopOrdersSold(row["invoiceNumber"], double.parse(row["soldCount"]));
+    topOrdersSoldList.add(topOrder);
   }
 }

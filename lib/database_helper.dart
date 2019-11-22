@@ -242,4 +242,42 @@ class DatabaseHelper {
     }
     return null;
   }
+
+  //Fetch top n items sold in a specific date range
+  Future<List<Map<String, dynamic>>> queryTRTopOrdersSold(
+      int startInv, int endInv, int reqRows) async {
+    Database db = await instance.database;
+
+    List<Map> result = await db.rawQuery(
+        'SELECT $columnIVinvoiceNumber, $columnIVinvoiceAmount AS soldCount FROM $invoiceTable '
+            'WHERE $columnIVinvoiceAmount IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
+            'ORDER BY $columnIVinvoiceAmount DESC '
+            'LIMIT $reqRows',
+        [startInv, endInv]);
+    print("#### Result : " + result.toString());
+    if (result.length > 0) {
+      return result;
+    }
+    return null;
+  }
+
+  //Fetch top n items sold in a specific date range
+  Future<List<Map<String, dynamic>>> queryTrends(
+      int startInv, int endInv) async {
+    Database db = await instance.database;
+
+    //Manipulation of invoice date is needed since we want to group by yyyyMMdd while the invoice number format is yyyyMMddHHmmSS
+    List<Map> result = await db.rawQuery(
+        'SELECT CAST($columnIVinvoiceNumber/1000000 as int) as saleDate, COUNT(*) as saleCount, SUM($columnIVinvoiceAmount) as saleAmount FROM $invoiceTable '
+            'WHERE $columnIVinvoiceAmount IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
+            'GROUP BY $columnIVinvoiceNumber/1000000 '
+            'ORDER BY $columnIVinvoiceAmount DESC ',
+        [startInv, endInv]);
+    print("#### Result : " + result.toString());
+    if (result.length > 0) {
+      return result;
+    }
+    return null;
+  }
+
 }

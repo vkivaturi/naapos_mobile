@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:naapos/charts_top_items.dart';
+import 'package:naapos/charts_top_orders.dart';
+import 'package:naapos/charts_trends.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -26,9 +28,9 @@ class _DashboardState extends State<Dashboard> {
           children: <Widget>[
             makeDashboardItem("Top 5 selling items", Icons.list, Colors.pinkAccent, TopItemChart()),
             makeDashboardItem(
-                "Top 5 orders", Icons.highlight, Colors.lightBlueAccent, TopItemChart()),
-//            makeDashboardItem(
-//                "Weekly order timeline", Icons.graphic_eq, Colors.yellow, TopOrdersChart()),
+                "Top 5 orders", Icons.highlight, Colors.lightBlueAccent, TopOrderChart()),
+            makeDashboardItem(
+                "Weekly trends", Icons.graphic_eq, Colors.yellow, TrendsChart()),
 //            makeDashboardItem(
 //                "Weekly order values", Icons.show_chart, Colors.orange, TopOrdersChart()),
 //            makeDashboardItem(

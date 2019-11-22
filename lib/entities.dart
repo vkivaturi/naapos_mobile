@@ -108,9 +108,28 @@ class Invoice {
   }
 }
 
+//Below entity classes are used in charts
 class TopItemsSold {
   final String item;
   final int sales;
 
   TopItemsSold(this.item, this.sales);
+}
+class TopOrdersSold {
+  final int invoiceNumber;
+  final double invoiceAmount;
+
+  TopOrdersSold(this.invoiceNumber, this.invoiceAmount);
+}
+class OrderValueTimeline {
+  final String weekDay;
+  final double invoiceAmount;
+
+  OrderValueTimeline(this.weekDay, this.invoiceAmount);
+}
+class OrderCountTimeline {
+  final String weekDay;
+  final int orderCount;
+
+  OrderCountTimeline(this.weekDay, this.orderCount);
 }
