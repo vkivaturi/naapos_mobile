@@ -29,8 +29,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
     _queryIVAll();
   }
 
-
-
   // homepage layout
   @override
   Widget build(BuildContext context) {

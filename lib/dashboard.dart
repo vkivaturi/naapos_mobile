@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/charts_top_items.dart';
 import 'package:naapos/charts_top_orders.dart';
 import 'package:naapos/charts_trends.dart';
+import 'package:naapos/help.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Naa POS Dashboard",
+          "Naa POS Home",
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 25.0, color: Colors.white),
         ),
@@ -31,11 +32,11 @@ class _DashboardState extends State<Dashboard> {
                 "Top 5 orders", Icons.highlight, Colors.lightBlueAccent, TopOrderChart()),
             makeDashboardItem(
                 "Weekly trends", Icons.graphic_eq, Colors.yellow, TrendsChart()),
-//            makeDashboardItem(
-//                "Weekly order values", Icons.show_chart, Colors.orange, TopOrdersChart()),
+            makeDashboardItem(
+                "Know about Naa POS", Icons.help, Colors.orange, Help()),
+//            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, TopOrdersChart())
 //            makeDashboardItem(
 //                "View last order", Icons.remove_red_eye, Colors.green, TopOrdersChart()),
-//            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, TopOrdersChart())
           ],
         ),
       ),
