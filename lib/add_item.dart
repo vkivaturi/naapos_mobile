@@ -62,54 +62,6 @@ class _AddItemState extends State<AddItem> {
   //This is the main build method
   @override
   Widget build(BuildContext context) {
-    Widget addItem = Container(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            new Flexible(
-              child: new TextField(
-                decoration: new InputDecoration(
-                    labelText: "Item code", border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                controller: itemCodeController,
-                focusNode: nodeItem,
-              ),
-            ),
-            new Flexible(
-              child: new TextField(
-                decoration: new InputDecoration(
-                    labelText: "Item description",
-                    border: OutlineInputBorder()),
-                keyboardType: TextInputType.text,
-                controller: itemDetailController,
-              ),
-            ),
-            new Flexible(
-              child: RaisedButton(
-                  padding: const EdgeInsets.all(12.0),
-                  textColor: Colors.white,
-                  color: Colors.green,
-                  onPressed: () {
-                    item.code = int.parse(itemCodeController.text);
-                    item.itemDetail = itemDetailController.text;
-                    item.tax = itemTaxController.text;
-                    item.unitPrice = itemUnitPriceController.text;
-
-                    _insert(item);
-
-                    itemCodeController.clear();
-                    itemDetailController.clear();
-                    itemTaxController.clear();
-                    itemUnitPriceController.clear();
-
-                    FocusScope.of(context).requestFocus(nodeItem);
-                  },
-                  child: Text('Add item', style: TextStyle(fontSize: 25))),
-            )
-          ],
-        ));
 
     return Scaffold(
         appBar: AppBar(

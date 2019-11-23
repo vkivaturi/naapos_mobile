@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/charts_top_items.dart';
 import 'package:naapos/charts_top_orders.dart';
 import 'package:naapos/charts_trends.dart';
+import 'package:naapos/download_data.dart';
 import 'package:naapos/help.dart';
 import 'package:naapos/add_item.dart';
 
@@ -26,7 +27,6 @@ class _DashboardState extends State<Dashboard> {
         padding: EdgeInsets.symmetric(vertical: 1.0, horizontal: 2.0),
         child: GridView.count(
           crossAxisCount: 2,
-//          padding: EdgeInsets.all(3.0),
           children: <Widget>[
             makeDashboardItem("Top 5 selling items", Icons.list, Colors.pinkAccent, TopItemChart()),
             makeDashboardItem(
@@ -35,9 +35,9 @@ class _DashboardState extends State<Dashboard> {
                 "Weekly trends", Icons.graphic_eq, Colors.yellow, TrendsChart()),
             makeDashboardItem(
                 "Know about Naa POS", Icons.help, Colors.orange, Help()),
-            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, AddItem())
-//            makeDashboardItem(
-//                "View last order", Icons.remove_red_eye, Colors.green, TopOrdersChart()),
+            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, AddItem()),
+            makeDashboardItem(
+                "Download data", Icons.file_download, Colors.green, DownloadData()),
           ],
         ),
       ),
