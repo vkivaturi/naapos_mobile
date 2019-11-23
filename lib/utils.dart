@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:naapos/entities.dart';
 import 'package:csv/csv.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 class Constants {
   static String appName = "Point of Sale";
@@ -71,8 +72,7 @@ class HelperMethods {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  //Convert items into a csv string. This can be used in multiple scenarios - like saving
-  // invoice transaction information or items export from catalog
+  //Convert items into a csv string. This is useful while downloading catalog data
   static String convertItemsListToCSV(List<Item> items) {
     List<List<dynamic>> rows = List<List<dynamic>>();
 
@@ -81,14 +81,44 @@ class HelperMethods {
 
       row.add(item.code);
       row.add(item.itemDetail);
-      row.add(item.qty);
       row.add(item.tax);
       row.add(item.unitPrice);
-      row.add(item.transactionPrice);
 
       rows.add(row);
     }
 
-    return ListToCsvConverter(fieldDelimiter: "^").convert(rows);
+    return ListToCsvConverter(fieldDelimiter: ",").convert(rows);
   }
+
+  //Convert invoices into a csv string. This is useful while downloading catalog data
+  static String convertInvoicesListToCSV(List<Invoice> invoices) {
+    List<List<dynamic>> rows = List<List<dynamic>>();
+
+    for (var invoice in invoices) {
+      List<dynamic> row = List();
+      row.add(invoice.invoiceNumber);
+      row.add(invoice.invoiceAmount);
+      row.add(invoice.invoiceQuantity);
+      row.add(invoice.invoiceTax);
+      row.add(invoice.storeId);
+      row.add(invoice.operatorId);
+      row.add(invoice.invoiceDateTime);
+
+      rows.add(row);
+    }
+
+    return ListToCsvConverter(fieldDelimiter: ",").convert(rows);
+  }
+
+  //Utility to send email
+  static void emailData(String emailBody, String emailId, String emailSubject) async {
+    final Email email = Email(
+      body: emailBody,
+      subject: emailSubject,
+      recipients: [emailId],
+      isHTML: false,
+    );
+    await FlutterEmailSender.send(email);
+  }
+
 }

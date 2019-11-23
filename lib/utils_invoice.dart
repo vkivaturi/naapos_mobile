@@ -94,14 +94,14 @@ class InvoiceHelpers {
 //  }
 
   //Send email with the dump of invoices in email body
-  static void emailInvoice(String invoicesCSV, String emailId) async {
-    final Email email = Email(
-      body: invoicesCSV,
-      subject: 'Invoices list extract',
-      recipients: [emailId],
-      isHTML: false,
-    );
-
-    await FlutterEmailSender.send(email);
-  }
+//  static void emailInvoice(String invoicesCSV, String emailId) async {
+//    final Email email = Email(
+//      body: invoicesCSV,
+//      subject: 'Invoices list extract',
+//      recipients: [emailId],
+//      isHTML: false,
+//    );
+//
+//    await FlutterEmailSender.send(email);
+//  }
 }

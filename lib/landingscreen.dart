@@ -36,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
           children: <Widget>[
             SizedBox(width: 7),
             IconButton(
-              icon: Icon(Icons.home, size: 40.0, color: Colors.orangeAccent),
+              icon: Icon(Icons.home, size: 50.0, color: Colors.lightBlueAccent),
               color: _page == 0
                   ? Theme.of(context).accentColor
                   : Theme.of(context).textTheme.caption.color,
@@ -45,8 +45,8 @@ class _MainScreenState extends State<MainScreen> {
             IconButton(
               icon: Icon(
                 Icons.shopping_cart,
-                size: 40.0,
-                color: Colors.orangeAccent,
+                size: 50.0,
+                color: Colors.lightBlueAccent,
               ),
               color: _page == 1
                   ? Theme.of(context).accentColor
@@ -56,8 +56,8 @@ class _MainScreenState extends State<MainScreen> {
             IconButton(
               icon: Icon(
                 Icons.list,
-                size: 40.0,
-                color: Colors.orangeAccent,
+                size: 50.0,
+                color: Colors.lightBlueAccent,
               ),
               color: _page == 2
                   ? Theme.of(context).accentColor
@@ -67,8 +67,8 @@ class _MainScreenState extends State<MainScreen> {
             IconButton(
               icon: Icon(
                 Icons.receipt,
-                size: 40.0,
-                color: Colors.orangeAccent,
+                size: 50.0,
+                color: Colors.lightBlueAccent,
               ),
               color: _page == 2
                   ? Theme.of(context).accentColor

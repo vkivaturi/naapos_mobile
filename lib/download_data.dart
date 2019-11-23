@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/entities.dart';
 import 'package:naapos/database_helper.dart';
 import 'package:naapos/utils.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/utils_download.dart';
 import 'package:intl/intl.dart';
 
 class DownloadData extends StatefulWidget {
@@ -27,6 +27,26 @@ class _DownloadDataState extends State<DownloadData> {
   final showDateFormat = new DateFormat('dd-MMM-yyyy');
   final searchDateFormat = new DateFormat('yyyyMMdd');
 
+  // reference to our single class that manages the database
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  void initState() {
+    startDateController.text = showDateFormat.format(selectStartDate.toLocal());
+    endDateController.text = showDateFormat.format(selectEndDate.toLocal());
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    startDateController.dispose();
+    endDateController.dispose();
+    emailController.dispose();
+
+    super.dispose();
+  }
 
   Future<Null> _selectStartDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -37,7 +57,8 @@ class _DownloadDataState extends State<DownloadData> {
     if (picked != null && picked != selectStartDate)
       setState(() {
         selectStartDate = picked;
-        startDateController.text = showDateFormat.format(selectStartDate.toLocal());
+        startDateController.text =
+            showDateFormat.format(selectStartDate.toLocal());
       });
   }
 
@@ -52,37 +73,6 @@ class _DownloadDataState extends State<DownloadData> {
         selectEndDate = picked;
         endDateController.text = showDateFormat.format(selectEndDate.toLocal());
       });
-  }
-
-  // reference to our single class that manages the database
-  final dbHelper = DatabaseHelper.instance;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    startDateController.dispose();
-    endDateController.dispose();
-    emailController.dispose();
-
-    super.dispose();
-  }
-
-  void _emailData(Item item) async {
-    // row to insert
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnITCode: item.code,
-      DatabaseHelper.columnITItemDetail: item.itemDetail,
-      DatabaseHelper.columnITTax: item.tax,
-      DatabaseHelper.columnITUnitPrice: item.unitPrice,
-    };
-    print(row.toString());
-    final id = await dbHelper.insertIT(row);
-    print('inserted row id: $id');
   }
 
   //This is the main build method
@@ -128,10 +118,14 @@ class _DownloadDataState extends State<DownloadData> {
                   ),
                   new TextFormField(
                     validator: (String value) {
+                      //Validate that start date is not greater that end date
                       if (value.isEmpty) {
                         return 'Please enter a valid date';
-                      } else
+                      } else if (selectStartDate.millisecondsSinceEpoch > selectEndDate.millisecondsSinceEpoch) {
+                        return 'Start date for search should be less than end date';
+                      }else {
                         return null;
+                      }
                     },
                     onTap: () => _selectStartDate(context),
                     decoration: new InputDecoration(
@@ -170,21 +164,25 @@ class _DownloadDataState extends State<DownloadData> {
                           color: Colors.blue,
                           onPressed: () {
                             if (_formKey.currentState.validate()) {
+                              //Send email
+                              DownloadHelpers.emailItemData(
+                                  dbHelper, emailController.text);
+
                               HelperMethods.showMessage(context, Colors.green,
-                                  "Item is created successfully");
+                                  "Item catalog is emailed to " + emailController.text);
                             } else {
                               // If the form is valid, display a Snackbar.
                               HelperMethods.showMessage(
                                   context,
                                   Colors.deepOrange,
-                                  "There are errors in your input data. Please fix them");
+                                  "There are errors in your input data. Please correct them");
                             }
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(Icons.email),
-                              Text('   Email items catalog',
+                              Text('   Email list of items',
                                   style: TextStyle(fontSize: 25))
                             ],
                           ))),
@@ -199,21 +197,30 @@ class _DownloadDataState extends State<DownloadData> {
                           color: Colors.pink,
                           onPressed: () {
                             if (_formKey.currentState.validate()) {
+                              int startInv = int.parse(searchDateFormat
+                                  .format(selectStartDate.toLocal()));
+                              int endInv = int.parse(searchDateFormat
+                                  .format(selectEndDate.toLocal()));
+
+                              //Send email
+                              DownloadHelpers.emailInvoiceData(dbHelper,
+                                  emailController.text, startInv, endInv);
+
                               HelperMethods.showMessage(context, Colors.green,
-                                  "Item is created successfully");
+                                  "Receipts list is emailed to " + emailController.text);
                             } else {
                               // If the form is valid, display a Snackbar.
                               HelperMethods.showMessage(
                                   context,
                                   Colors.deepOrange,
-                                  "There are errors in your input data. Please fix them");
+                                  "There are errors in your input data. Please correct them");
                             }
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(Icons.email),
-                              Text('   Email seleced receipts',
+                              Text('   Email list of receipts',
                                   style: TextStyle(fontSize: 25))
                             ],
                           )))
