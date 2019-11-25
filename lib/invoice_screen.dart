@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/database_helper.dart';
 import 'package:naapos/entities.dart';
 import 'package:naapos/utils_invoice.dart';
+import 'package:intl/intl.dart';
 
 class ManageInvoice extends StatefulWidget {
   ManageInvoice({Key key, this.title}) : super(key: key);
@@ -17,51 +18,139 @@ class ManageInvoiceState extends State<ManageInvoice> {
   final dbHelper = DatabaseHelper.instance;
   //Lists of map to store invoices
   List<Invoice> invoices;
-  final invoiceDateController = TextEditingController();
+  final startDateController = TextEditingController();
+  final endDateController = TextEditingController();
+
+  DateTime selectStartDate = DateTime.now();
+  DateTime selectEndDate = DateTime.now();
+
+  final showDateFormat = new DateFormat('dd-MMM-yyyy');
+  final searchDateFormat = new DateFormat('yyyyMMdd');
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    startDateController.dispose();
+    endDateController.dispose();
+
+    super.dispose();
+  }
 
   @override
   void initState() {
     invoices = [];
-    super.initState();
 
-    //Load all items initially
-    _queryIVAll();
+    startDateController.text = showDateFormat.format(selectStartDate.toLocal());
+    endDateController.text = showDateFormat.format(selectEndDate.toLocal());
+
+    super.initState();
+    //Load items initially for the current date
+    _queryIVInvoiceRange(
+        int.parse(searchDateFormat
+            .format(selectStartDate.toLocal()) + "000000"),
+        int.parse(searchDateFormat
+            .format(selectEndDate.toLocal()) + "235959"));
+
+  }
+
+  Future<Null> _selectStartDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectStartDate,
+        firstDate: DateTime(2015),
+        lastDate: DateTime(2100));
+    if (picked != null && picked != selectStartDate)
+      setState(() {
+        selectStartDate = picked;
+        startDateController.text =
+            showDateFormat.format(selectStartDate.toLocal());
+      });
+  }
+
+  Future<Null> _selectEndDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectEndDate,
+        firstDate: DateTime(2015),
+        lastDate: DateTime(2100));
+    if (picked != null && picked != selectEndDate)
+      setState(() {
+        selectEndDate = picked;
+        endDateController.text = showDateFormat.format(selectEndDate.toLocal());
+      });
   }
 
   // homepage layout
   @override
   Widget build(BuildContext context) {
     Widget searchInvoice = Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(2),
         child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
+            Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                child: new TextFormField(
+                  validator: (String value) {
+                    //Validate that start date is not greater that end date
+                    if (value.isEmpty) {
+                      return 'Please enter a valid date';
+                    } else if (selectStartDate.millisecondsSinceEpoch >
+                        selectEndDate.millisecondsSinceEpoch) {
+                      return 'Start date for search should be less than end date';
+                    } else {
+                      return null;
+                    }
+                  },
+                  onTap: () => _selectStartDate(context),
+                  decoration: new InputDecoration(
+                      labelText: "Receipts start date",
+                      border: OutlineInputBorder()),
+                  keyboardType: TextInputType.text,
+                  controller: startDateController,
+                )),
+            SizedBox(width: 10.0,),
+            Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                child: new TextFormField(
+                  validator: (String value) {
+                    //Validate that start date is not greater that end date
+                    if (value.isEmpty) {
+                      return 'Please enter a valid date';
+                    } else if (selectStartDate.millisecondsSinceEpoch >
+                        selectEndDate.millisecondsSinceEpoch) {
+                      return 'Start date for search should be less than end date';
+                    } else {
+                      return null;
+                    }
+                  },
+                  onTap: () => _selectEndDate(context),
+                  decoration: new InputDecoration(
+                      labelText: "Receipts start date",
+                      border: OutlineInputBorder()),
+                  keyboardType: TextInputType.text,
+                  controller: endDateController,
+                )),
             new Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: 60.0,
-              child: new TextField(
-                decoration: new InputDecoration(
-                    hintText: "Enter invoice date",
-                    border: OutlineInputBorder()),
-                keyboardType: TextInputType.datetime,
-                controller: invoiceDateController,
-              ),
-            ),
-            new Container(
-              width: MediaQuery.of(context).size.width * 0.2,
+              width: MediaQuery.of(context).size.width * 0.1,
               height: 60.0,
               child: RaisedButton(
-                  //padding: const EdgeInsets.all(12.0),
-                  textColor: Colors.white,
-                  color: Colors.black,
-                  onPressed: () {
+                //padding: const EdgeInsets.all(12.0),
+                textColor: Colors.white,
+                color: Colors.black,
+                onPressed: () {
+                  //Convert start and end date to yyyyMMddHHmmss format and search
                     _queryIVInvoiceRange(
-                        int.parse(invoiceDateController.text + "000000"),
-                        int.parse(invoiceDateController.text + "235959"));
-                  },
-                  child: Icon(Icons
-                      .search, size: 40.0, color: Colors.blue,), ), //Text('Add item', style: TextStyle(fontSize: 25))),
+                        int.parse(searchDateFormat
+                            .format(selectStartDate.toLocal()) + "000000"),
+                        int.parse(searchDateFormat
+                            .format(selectEndDate.toLocal()) + "235959"));
+                },
+                child: Icon(
+                  Icons.search,
+                  size: 40.0,
+                  color: Colors.blue,
+                ),
+              ), //Text('Add item', style: TextStyle(fontSize: 25))),
             )
           ],
         ));
@@ -88,7 +177,8 @@ class ManageInvoiceState extends State<ManageInvoice> {
                 ),
                 title: Text(invoices[position].invoiceNumber.toString(),
                     style: TextStyle(fontSize: 20.0, color: Colors.white)),
-                subtitle: Text(invoices[position].invoiceDateTime, style: TextStyle(fontSize: 15.0, color: Colors.white)),
+                subtitle: Text(invoices[position].invoiceDateTime,
+                    style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 trailing: IconButton(
                   icon: Icon(Icons.keyboard_arrow_right,
                       color: Colors.white, size: 30.0),
@@ -123,15 +213,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
                   ],
                 ),
               ))),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.email),
-        onPressed: () {
-          //String emailBody = InvoiceHelpers.convertInvoicesListToCSV(invoices);
-          String emailBody = "Email body test";
-          print("Email Body @@@@ " + emailBody);
-//          InvoiceHelpers.emailInvoice(emailBody, "aa");
-        },
-      ),
     );
   }
 
