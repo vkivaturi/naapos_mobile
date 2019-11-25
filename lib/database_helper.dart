@@ -82,6 +82,7 @@ class DatabaseHelper {
             $columnITItemDetail TEXT NOT NULL,
             $columnITTax TEXT NOT NULL,
             $columnITUnitPrice TEXT NOT NULL,
+            $columnIVinvoiceQuantity TEXT NOT NULL,
             PRIMARY KEY($columnIVinvoiceNumber, $columnTRTransactionNumber)
           ) 
           ''');
@@ -148,15 +149,15 @@ class DatabaseHelper {
     return null;
   }
 
-  //Fetch list of invoices based on input range
-  Future<List<Map<String, dynamic>>> queryTRTransactionRange(
-      int startTrn, int endTrn) async {
+  //Fetch list of transactions for a specific invoice
+  Future<List<Map<String, dynamic>>> queryTRTransaction(
+      int invoiceNumber) async {
     Database db = await instance.database;
 
     List<Map<String, dynamic>> result = await db.query(transactionTable,
         where:
-            '$columnTRTransactionNumber >= ? and $columnTRTransactionNumber <= ?',
-        whereArgs: [startTrn, endTrn]);
+            '$columnIVinvoiceNumber = ?',
+        whereArgs: [invoiceNumber]);
     print("#### Result : " + result.length.toString());
     if (result.length > 0) {
       return result;

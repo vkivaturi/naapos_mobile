@@ -53,7 +53,7 @@ class TopOrderChartState extends State<TopOrderChart> {
                       new charts.Series<TopOrdersSold, String>(
                         id: 'Sales',
                         colorFn: (_, __) =>
-                            charts.MaterialPalette.blue.shadeDefault,
+                            charts.MaterialPalette.pink.shadeDefault,
                         domainFn: (TopOrdersSold sales, _) =>
                             sales.invoiceNumber.toString(),
                         measureFn: (TopOrdersSold sales, _) =>

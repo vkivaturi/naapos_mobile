@@ -3,6 +3,7 @@ import 'package:naapos/database_helper.dart';
 import 'package:naapos/entities.dart';
 import 'package:naapos/utils_invoice.dart';
 import 'package:intl/intl.dart';
+import 'package:naapos/view_receipt.dart';
 
 class ManageInvoice extends StatefulWidget {
   ManageInvoice({Key key, this.title}) : super(key: key);
@@ -218,52 +219,57 @@ class ManageInvoiceState extends State<ManageInvoice> {
 
   //View the selected invoice
   _viewInvoiceDialog(int position) {
-    return showDialog(
-        context: context,
-        builder: (_) => new AlertDialog(
-              title: new Text("Transactions in invoice " +
-                  invoices[position].invoiceNumber.toString()),
-              content: new Column(
-                children: <Widget>[
-                  new TextField(
-                    decoration: new InputDecoration(
-                        labelText: "Unit price", border: OutlineInputBorder()),
-                  ),
-                  new Row(children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.add_circle,
-                            size: 40.0,
-                            color: Colors.green,
-                          ),
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true).pop();
-                          },
-                        ),
-                        new Text('Create item'),
-                      ],
-                    ),
-                    Column(
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.check_circle,
-                            size: 40.0,
-                            color: Colors.deepPurple,
-                          ),
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true).pop();
-                          },
-                        ),
-                        new Text('Update item'),
-                      ],
-                    ),
-                  ]),
-                ],
-              ),
-            ));
+
+    Navigator.push(context, MaterialPageRoute(builder: (_) {
+      return ViewReceipt(incomingReceipt: invoices[position],);
+    }));
+
+//    return showDialog(
+//        context: context,
+//        builder: (_) => new AlertDialog(
+//              title: new Text("Transactions in invoice " +
+//                  invoices[position].invoiceNumber.toString()),
+//              content: new Column(
+//                children: <Widget>[
+//                  new TextField(
+//                    decoration: new InputDecoration(
+//                        labelText: "Unit price", border: OutlineInputBorder()),
+//                  ),
+//                  new Row(children: <Widget>[
+//                    Column(
+//                      children: <Widget>[
+//                        IconButton(
+//                          icon: Icon(
+//                            Icons.add_circle,
+//                            size: 40.0,
+//                            color: Colors.green,
+//                          ),
+//                          onPressed: () {
+//                            Navigator.of(context, rootNavigator: true).pop();
+//                          },
+//                        ),
+//                        new Text('Create item'),
+//                      ],
+//                    ),
+//                    Column(
+//                      children: <Widget>[
+//                        IconButton(
+//                          icon: Icon(
+//                            Icons.check_circle,
+//                            size: 40.0,
+//                            color: Colors.deepPurple,
+//                          ),
+//                          onPressed: () {
+//                            Navigator.of(context, rootNavigator: true).pop();
+//                          },
+//                        ),
+//                        new Text('Update item'),
+//                      ],
+//                    ),
+//                  ]),
+//                ],
+//              ),
+//            ));
   }
 
   void _queryIVAll() async {
@@ -276,8 +282,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
   }
 
   void _queryIVInvoiceRange(int startInv, int endInv) async {
-    //startInv = 20191120125350;
-    //endInv = 20191120125350;
 
     final allRows = await dbHelper.queryIVInvoiceRange(startInv, endInv);
     invoices = [];

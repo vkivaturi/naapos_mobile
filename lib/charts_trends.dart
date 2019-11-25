@@ -59,7 +59,7 @@ class TrendsChartState extends State<TrendsChart> {
                       new charts.Series<OrderValueTimeline, String>(
                         id: 'Sales',
                         colorFn: (_, __) =>
-                            charts.MaterialPalette.blue.shadeDefault,
+                            charts.MaterialPalette.green.shadeDefault,
                         domainFn: (OrderValueTimeline sales, _) =>
                             sales.weekDay,
                         measureFn: (OrderValueTimeline sales, _) =>
