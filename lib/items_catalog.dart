@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:naapos/database_helper.dart';
 import 'package:naapos/entities.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:naapos/add_update_delete_item.dart';
 
-class ManageItem extends StatefulWidget {
-  ManageItem({Key key, this.title}) : super(key: key);
+class ItemCatalog extends StatefulWidget {
+  ItemCatalog({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  ManageItemState createState() => ManageItemState();
+  ItemCatalogState createState() => ItemCatalogState();
 }
 
-class ManageItemState extends State<ManageItem> {
+class ItemCatalogState extends State<ItemCatalog> {
   final itemCodeController = TextEditingController();
   final itemDetailController = TextEditingController();
   final itemTaxController = TextEditingController();
@@ -43,20 +44,34 @@ class ManageItemState extends State<ManageItem> {
           return Card(
               elevation: 2.0,
               child: ListTile(
-                title: Text(items[position].code.toString() +
-                    " == " +
-                    items[position].itemDetail +
-                    " == Rs. " +
-                    items[position].unitPrice),
-                subtitle: Text("Tax rate : " + items[position].tax + "%"),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                leading: Container(
+                  padding: EdgeInsets.only(right: 12.0),
+                  decoration: new BoxDecoration(
+                      border: new Border(
+                          right: new BorderSide(
+                              width: 5.0, color: Colors.white24))),
+                  child: Text(items[position].code.toString(),
+                      style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                ),
+                title: Text(items[position].itemDetail,
+                    style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                subtitle: Text(
+                    "Rs: " +
+                        items[position].unitPrice +
+                        " Tax rate : " +
+                        items[position].tax +
+                        "%",
+                    style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 trailing: IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    size: 25.0,
-                    color: Colors.orange,
-                  ),
+                  icon: Icon(Icons.keyboard_arrow_right,
+                      color: Colors.white, size: 30.0),
                   onPressed: () {
-                    _editItemCustomDialog(position);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return ManageItem(incomingItem: items[position],);
+                    }));
+                    //_editItemCustomDialog(position);
                   },
                 ),
               ));
@@ -89,7 +104,11 @@ class ManageItemState extends State<ManageItem> {
         child: Icon(Icons.add),
         onPressed: () {
           //_editItemDialog(-1);
-          _editItemCustomDialog(-1);
+          //_editItemCustomDialog(-1);
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return ManageItem();
+          }));
+
         },
       ),
     );
@@ -188,7 +207,8 @@ class ManageItemState extends State<ManageItem> {
 
               Navigator.of(context, rootNavigator: true).pop();
             },
-          ),          DialogButton(
+          ),
+          DialogButton(
 //            onPressed: () => Navigator.pop(context),
             child: Visibility(
                 visible: !isNewItem,
@@ -202,8 +222,7 @@ class ManageItemState extends State<ManageItem> {
               uItem.unitPrice = itemUnitPriceController.text;
               uItem.tax = itemTaxController.text;
               uItem.itemDetail = itemDetailController.text;
-              uItem.code =
-                  int.parse(items[position].code.toString());
+              uItem.code = int.parse(items[position].code.toString());
 
               _update(uItem);
 
@@ -212,11 +231,10 @@ class ManageItemState extends State<ManageItem> {
                 _queryAll();
               });
 
-              Navigator.of(context, rootNavigator: true)
-                  .pop();
-
+              Navigator.of(context, rootNavigator: true).pop();
             },
-          ),          DialogButton(
+          ),
+          DialogButton(
 //            onPressed: () => Navigator.pop(context),
             child: Visibility(
                 visible: isNewItem,
@@ -243,8 +261,6 @@ class ManageItemState extends State<ManageItem> {
               Navigator.of(context, rootNavigator: true).pop();
             },
           )
-
-
         ]).show();
   }
 

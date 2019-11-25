@@ -19,7 +19,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
   List<Invoice> invoices;
   final invoiceDateController = TextEditingController();
 
-
   @override
   void initState() {
     invoices = [];
@@ -32,35 +31,40 @@ class ManageInvoiceState extends State<ManageInvoice> {
   // homepage layout
   @override
   Widget build(BuildContext context) {
-
     Widget searchInvoice = Container(
         padding: const EdgeInsets.all(10),
         child: Row(
           mainAxisSize: MainAxisSize.max,
-          //mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            new Flexible(
+            new Container(
+              width: MediaQuery.of(context).size.width * 0.7,
+              height: 60.0,
               child: new TextField(
                 decoration: new InputDecoration(
-                    hintText: "Enter invoice date", border: OutlineInputBorder()),
+                    hintText: "Enter invoice date",
+                    border: OutlineInputBorder()),
                 keyboardType: TextInputType.datetime,
                 controller: invoiceDateController,
               ),
             ),
-            new Flexible(
+            new Container(
+              width: MediaQuery.of(context).size.width * 0.2,
+              height: 60.0,
               child: RaisedButton(
                   //padding: const EdgeInsets.all(12.0),
                   textColor: Colors.white,
-                  //color: Colors.green,
+                  color: Colors.black,
                   onPressed: () {
-                    _queryIVInvoiceRange(int.parse(invoiceDateController.text + "000000"), int.parse(invoiceDateController.text + "235959"));
+                    _queryIVInvoiceRange(
+                        int.parse(invoiceDateController.text + "000000"),
+                        int.parse(invoiceDateController.text + "235959"));
                   },
-                  child: Icon(Icons.search)
-              ),//Text('Add item', style: TextStyle(fontSize: 25))),
+                  child: Icon(Icons
+                      .search, size: 40.0, color: Colors.blue,), ), //Text('Add item', style: TextStyle(fontSize: 25))),
             )
           ],
         ));
-
 
     Widget ItemsView = ListView.builder(
         scrollDirection: Axis.vertical,
@@ -68,26 +72,31 @@ class ManageInvoiceState extends State<ManageInvoice> {
         itemCount: invoices.length,
         itemBuilder: (context, position) {
           return Card(
-            //color: Colors.grey,
+              //color: Colors.grey,
               elevation: 2.0,
-
               child: ListTile(
-            title: Text(invoices[position].invoiceNumber.toString() +
-                "    " +
-                "    Rs. " +
-                invoices[position].invoiceAmount.toString()),
-            subtitle: Text(invoices[position].invoiceDateTime),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.receipt,
-                size: 25.0,
-                color: Colors.purple,
-              ),
-              onPressed: () {
-                _viewInvoiceDialog(position);
-              },
-            ),
-          ));
+                leading: Container(
+                  padding: EdgeInsets.only(right: 12.0),
+                  width: 120.0,
+                  decoration: new BoxDecoration(
+                      border: new Border(
+                          right: new BorderSide(
+                              width: 5.0, color: Colors.white24))),
+                  child: Text(
+                      "Rs. " + invoices[position].invoiceAmount.toString(),
+                      style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                ),
+                title: Text(invoices[position].invoiceNumber.toString(),
+                    style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                subtitle: Text(invoices[position].invoiceDateTime, style: TextStyle(fontSize: 15.0, color: Colors.white)),
+                trailing: IconButton(
+                  icon: Icon(Icons.keyboard_arrow_right,
+                      color: Colors.white, size: 30.0),
+                  onPressed: () {
+                    _viewInvoiceDialog(position);
+                  },
+                ),
+              ));
         });
 
     return Scaffold(
@@ -98,19 +107,22 @@ class ManageInvoiceState extends State<ManageInvoice> {
           style: TextStyle(fontSize: 25.0, color: Colors.white),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            searchInvoice,
-            Divider(
-              height: 2.0,
-              color: Colors.grey,
-            ),
-            ItemsView
-          ],
-        ),
-      ),
+      body: SingleChildScrollView(
+          child: ConstrainedBox(
+              constraints: BoxConstraints(),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    searchInvoice,
+                    Divider(
+                      height: 2.0,
+                      color: Colors.grey,
+                    ),
+                    ItemsView
+                  ],
+                ),
+              ))),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.email),
         onPressed: () {
@@ -183,7 +195,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
   }
 
   void _queryIVInvoiceRange(int startInv, int endInv) async {
-
     //startInv = 20191120125350;
     //endInv = 20191120125350;
 

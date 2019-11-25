@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'homescreen.dart';
+import 'create_receipt.dart';
 import 'package:naapos/items_catalog.dart';
-import 'package:naapos/landingscreen.dart';
+import 'package:naapos/navigation.dart';
 import 'package:naapos/utils.dart';
 
 

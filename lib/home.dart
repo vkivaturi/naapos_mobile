@@ -4,7 +4,7 @@ import 'package:naapos/charts_top_orders.dart';
 import 'package:naapos/charts_trends.dart';
 import 'package:naapos/download_data.dart';
 import 'package:naapos/help.dart';
-import 'package:naapos/add_item.dart';
+import 'package:naapos/add_update_delete_item.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -14,6 +14,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -35,7 +36,7 @@ class _DashboardState extends State<Dashboard> {
                 "Weekly trends", Icons.graphic_eq, Colors.yellow, TrendsChart()),
             makeDashboardItem(
                 "Know about Naa POS", Icons.help, Colors.orange, Help()),
-            makeDashboardItem("Add new item", Icons.add_box, Colors.tealAccent, AddItem()),
+            makeDashboardItem("Add new item", Icons.add_box, Colors.deepPurpleAccent, ManageItem()),
             makeDashboardItem(
                 "Download data", Icons.file_download, Colors.green, DownloadData()),
           ],
@@ -52,7 +53,6 @@ class _DashboardState extends State<Dashboard> {
           decoration: BoxDecoration(color: colorBG),
           child: new InkWell(
             onTap: () {
-              print('on tap');
               Navigator.push(context, MaterialPageRoute(builder: (_) {
                 return actionWidget;
               }));

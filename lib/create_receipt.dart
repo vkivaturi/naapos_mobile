@@ -17,6 +17,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   final itemCodeController = TextEditingController();
   final qtyController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
@@ -34,20 +36,38 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   @override
   void initState() {
     items = [];
-    double invTotalAmt = 0;
-    int invQuantity = 0;
-    double invTax = 0;
-
     super.initState();
   }
 
-  //Increase invoice total amount, total tax and quantity of items
-  void increaseInvTotalAmt(double transactionAmount, int itemQty, int taxPerc) {
+  //Update invoice total amount, total tax and quantity of items. This is used to update header totals
+  // when an item is added or deleted to a draft receipt
+  void updateInvTotalAmt() {
+    double transactionAmount;
+    int itemQty;
+    int taxPerc;
+    int unitPrice;
+
+    Item itemCalc = new Item();
+
     setState(() {
-      invTotalAmt = invTotalAmt + transactionAmount;
-      invTax = invTax + (transactionAmount * taxPerc / 100);
-      invQuantity = invQuantity + itemQty;
+      invTotalAmt = 0;
+      invTax = 0;
+      invQuantity = 0;
+
+      for (itemCalc in items) {
+        transactionAmount = double.parse(itemCalc.transactionPrice);
+        itemQty = int.parse(itemCalc.qty);
+        taxPerc = int.parse(itemCalc.tax);
+        unitPrice = int.parse(itemCalc.unitPrice);
+
+
+        invTotalAmt = invTotalAmt + transactionAmount;
+        invTax = invTax + unitPrice * (taxPerc / 100);
+        invQuantity = invQuantity + itemQty;
+      }
+
     });
+
   }
 
 //Decrease all summary amounts when an items is deleted from draft invoice.
@@ -107,13 +127,12 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
       double transactionAmount = calculateTransactionAmt(
           int.parse(item.unitPrice), int.parse(qty), int.parse(item.tax));
+
       item.transactionPrice = transactionAmount.toString();
-
-      //Add transactions amount to the invoice total
-      increaseInvTotalAmt(
-          transactionAmount, int.parse(qty), int.parse(item.tax));
-
       items.add(item);
+
+      //Update header total
+      updateInvTotalAmt();
 
       //Refresh the list
       setState(() {});
@@ -123,6 +142,8 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   //This is the main build method
   @override
   Widget build(BuildContext context) {
+    qtyController.text = 1.toString();
+
     Widget ItemsView = ListView.builder(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
@@ -155,12 +176,11 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                           int.parse(items[position].qty),
                           int.parse(items[position].tax));
 
-                      decreaseInvTotalAmt(
-                          transactionAmount,
-                          int.parse(items[position].qty),
-                          int.parse(items[position].tax));
-
                       items.removeAt(position);
+                      updateInvTotalAmt();
+
+                      //Refresh the list
+                      setState(() {});
                     });
                   },
                 ),
@@ -195,45 +215,70 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                   fontWeight: FontWeight.bold),
             )));
 
-    Widget selectItem = Container(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            new Flexible(
-              child: new TextField(
-                decoration: new InputDecoration(
-                    labelText: "Enter item code", border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                controller: itemCodeController,
-                focusNode: nodeItem,
-              ),
-            ),
-            new Flexible(
-              child: new TextField(
-                decoration: new InputDecoration(
-                    labelText: "Enter quantity", border: OutlineInputBorder()),
-                keyboardType: TextInputType.number,
-                controller: qtyController,
-              ),
-            ),
-            new Flexible(
-              child: RaisedButton(
-                  padding: const EdgeInsets.all(12.0),
-                  textColor: Colors.white,
-                  color: Colors.green,
-                  onPressed: () {
-                    queryForItem(itemCodeController.text, qtyController.text);
+    Widget selectItem = Form(
+        key: _formKey,
+        child: Container(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                new Flexible(
+                  child: new TextFormField(
+                    validator: (String value) {
+                      var checkInt = int.tryParse(value);
+                      if (value.isEmpty || checkInt == null) {
+                        return 'Please enter a valid number for item code';
+                      } else
+                        return null;
+                    },
+                    decoration: new InputDecoration(
+                        labelText: "Enter item code",
+                        border: OutlineInputBorder()),
+                    keyboardType: TextInputType.number,
+                    controller: itemCodeController,
+                    focusNode: nodeItem,
+                  ),
+                ),
+                new Flexible(
+                  child: new TextFormField(
+                    validator: (String value) {
+                      var checkInt = int.tryParse(value);
+                      if (value.isEmpty || checkInt == null) {
+                        return 'Please enter a valid number for quantity';
+                      } else
+                        return null;
+                    },
+                    decoration: new InputDecoration(
+                        labelText: "Enter quantity",
+                        border: OutlineInputBorder()),
+                    keyboardType: TextInputType.number,
+                    controller: qtyController,
+                  ),
+                ),
+                new Flexible(
+                  child: RaisedButton(
+                      padding: const EdgeInsets.all(12.0),
+                      textColor: Colors.white,
+                      color: Colors.green,
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          queryForItem(
+                              itemCodeController.text, qtyController.text);
 
-                    itemCodeController.clear();
-                    qtyController.clear();
-                    FocusScope.of(context).requestFocus(nodeItem);
-                  },
-                  child: Text('Add item', style: TextStyle(fontSize: 25))),
-            )
-          ],
-        ));
+                          itemCodeController.clear();
+                          qtyController.clear();
+                          FocusScope.of(context).requestFocus(nodeItem);
+                        } else {
+                          // If the form is valid, display a Snackbar.
+                          HelperMethods.showMessage(context, Colors.deepOrange,
+                              "There are errors in your input data. Please fix them");
+                        }
+                      },
+                      child: Text('Add item', style: TextStyle(fontSize: 25))),
+                )
+              ],
+            )));
 
     return Scaffold(
       appBar: AppBar(
@@ -244,36 +289,35 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         ),
         //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
-      body: Column(
-        children: [
-          selectItem,
-          Divider(
-            height: 2.0,
-            color: Colors.grey,
-          ),
-          itemSummary,
-          Divider(
-            height: 2.0,
-            color: Colors.grey,
-          ),
-          ItemsView,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[],
-          ),
-        ],
-      ),
+      body: SingleChildScrollView(
+          child: ConstrainedBox(
+              constraints: BoxConstraints(),
+              child: Column(
+                children: [
+                  selectItem,
+                  Divider(
+                    height: 2.0,
+                    color: Colors.grey,
+                  ),
+                  itemSummary,
+                  Divider(
+                    height: 2.0,
+                    color: Colors.grey,
+                  ),
+                  ItemsView,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[],
+                  ),
+                ],
+              ))),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save),
         onPressed: () {
           if (items.length > 0) {
             Invoice invoice = InvoiceHelpers.buildInvoice(
                 items, invTotalAmt, invQuantity, invTax);
-
-            //            invoice.invoiceAmount = invTotalAmt;
-//            invoice.invoiceQuantity = invQuantity;
-//            invoice.invoiceTax = invTax;
 
             InvoiceHelpers.insert(invoice, items, dbHelper, context);
 
