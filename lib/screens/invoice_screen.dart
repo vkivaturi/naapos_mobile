@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/data/entities.dart';
 import 'package:intl/intl.dart';
-import 'package:naapos/view_receipt.dart';
+import 'package:naapos/views/view_receipt.dart';
 
 class ManageInvoice extends StatefulWidget {
   ManageInvoice({Key key, this.title}) : super(key: key);
@@ -47,11 +46,9 @@ class ManageInvoiceState extends State<ManageInvoice> {
     super.initState();
     //Load items initially for the current date
     _queryIVInvoiceRange(
-        int.parse(searchDateFormat
-            .format(selectStartDate.toLocal()) + "000000"),
-        int.parse(searchDateFormat
-            .format(selectEndDate.toLocal()) + "235959"));
-
+        int.parse(
+            searchDateFormat.format(selectStartDate.toLocal()) + "000000"),
+        int.parse(searchDateFormat.format(selectEndDate.toLocal()) + "235959"));
   }
 
   Future<Null> _selectStartDate(BuildContext context) async {
@@ -81,7 +78,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
       });
   }
 
-  // homepage layout
   @override
   Widget build(BuildContext context) {
     Widget searchInvoice = Container(
@@ -109,7 +105,9 @@ class ManageInvoiceState extends State<ManageInvoice> {
                   keyboardType: TextInputType.text,
                   controller: startDateController,
                 )),
-            SizedBox(width: 10.0,),
+            SizedBox(
+              width: 10.0,
+            ),
             Container(
                 width: MediaQuery.of(context).size.width * 0.4,
                 child: new TextFormField(
@@ -140,11 +138,13 @@ class ManageInvoiceState extends State<ManageInvoice> {
                 color: Colors.black,
                 onPressed: () {
                   //Convert start and end date to yyyyMMddHHmmss format and search
-                    _queryIVInvoiceRange(
-                        int.parse(searchDateFormat
-                            .format(selectStartDate.toLocal()) + "000000"),
-                        int.parse(searchDateFormat
-                            .format(selectEndDate.toLocal()) + "235959"));
+                  _queryIVInvoiceRange(
+                      int.parse(
+                          searchDateFormat.format(selectStartDate.toLocal()) +
+                              "000000"),
+                      int.parse(
+                          searchDateFormat.format(selectEndDate.toLocal()) +
+                              "235959"));
                 },
                 child: Icon(
                   Icons.search,
@@ -219,74 +219,32 @@ class ManageInvoiceState extends State<ManageInvoice> {
 
   //View the selected invoice
   _viewInvoiceDialog(int position) {
-
     Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return ViewReceipt(incomingReceipt: invoices[position],);
+      return ViewReceipt(
+        incomingReceipt: invoices[position],
+      );
     }));
-
-//    return showDialog(
-//        context: context,
-//        builder: (_) => new AlertDialog(
-//              title: new Text("Transactions in invoice " +
-//                  invoices[position].invoiceNumber.toString()),
-//              content: new Column(
-//                children: <Widget>[
-//                  new TextField(
-//                    decoration: new InputDecoration(
-//                        labelText: "Unit price", border: OutlineInputBorder()),
-//                  ),
-//                  new Row(children: <Widget>[
-//                    Column(
-//                      children: <Widget>[
-//                        IconButton(
-//                          icon: Icon(
-//                            Icons.add_circle,
-//                            size: 40.0,
-//                            color: Colors.green,
-//                          ),
-//                          onPressed: () {
-//                            Navigator.of(context, rootNavigator: true).pop();
-//                          },
-//                        ),
-//                        new Text('Create item'),
-//                      ],
-//                    ),
-//                    Column(
-//                      children: <Widget>[
-//                        IconButton(
-//                          icon: Icon(
-//                            Icons.check_circle,
-//                            size: 40.0,
-//                            color: Colors.deepPurple,
-//                          ),
-//                          onPressed: () {
-//                            Navigator.of(context, rootNavigator: true).pop();
-//                          },
-//                        ),
-//                        new Text('Update item'),
-//                      ],
-//                    ),
-//                  ]),
-//                ],
-//              ),
-//            ));
   }
 
   void _queryIVAll() async {
     final allRows = await dbHelper.queryIVAllRows();
     invoices = [];
-    allRows.forEach((row) => _addInvoiceToList(row));
+
+    if (allRows != null && allRows.length > 0) {
+      allRows.forEach((row) => _addInvoiceToList(row));
+    }
 
     //Refresh screen with invoices list since this function is an async one
     setState(() {});
   }
 
   void _queryIVInvoiceRange(int startInv, int endInv) async {
-
     final allRows = await dbHelper.queryIVInvoiceRange(startInv, endInv);
     invoices = [];
-    allRows.forEach((row) => _addInvoiceToList(row));
 
+    if (allRows != null && allRows.length > 0) {
+      allRows.forEach((row) => _addInvoiceToList(row));
+    }
     //Refresh screen with invoices list since this function is an async one
     setState(() {});
   }
@@ -294,7 +252,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
   void _addInvoiceToList(Map<String, Object> row) {
     Invoice invoice = new Invoice();
 
-//    invoice.transactionsCSV = row["transactions"];
     invoice.invoiceQuantity = int.parse(row["invoiceQuantity"]);
     invoice.invoiceTax = double.parse(row["invoiceTax"]);
     invoice.invoiceAmount = double.parse(row["invoiceAmount"]);
@@ -302,8 +259,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
     invoice.operatorId = row["operatorId"];
     invoice.storeId = row["storeId"];
     invoice.invoiceDateTime = row["invoiceDateTime"];
-
-    print(invoice.toString());
 
     invoices.add(invoice);
   }

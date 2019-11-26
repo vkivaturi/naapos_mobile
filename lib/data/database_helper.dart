@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:naapos/entities.dart';
+import 'package:naapos/data/entities.dart';
 
 class DatabaseHelper {
   static final _databaseName = "Items.db";
@@ -52,12 +52,12 @@ class DatabaseHelper {
     return await openDatabase(
       path,
       version: _databaseVersion,
-      onOpen: _onCreate,
+      onCreate: _onCreate,
     );
   }
 
   // SQL code to create the database table
-  Future _onCreate(Database db) async {
+  Future _onCreate(Database db, int version) async {
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $itemTable (
             $columnITCode INT PRIMARY KEY,
@@ -158,7 +158,6 @@ class DatabaseHelper {
         where:
             '$columnIVinvoiceNumber = ?',
         whereArgs: [invoiceNumber]);
-    print("#### Result : " + result.length.toString());
     if (result.length > 0) {
       return result;
     }
@@ -173,7 +172,6 @@ class DatabaseHelper {
     List<Map<String, dynamic>> result = await db.query(invoiceTable,
         where: '$columnIVinvoiceNumber >= ? and $columnIVinvoiceNumber <= ?',
         whereArgs: [startInv, endInv]);
-    print("#### Result : " + result.length.toString());
     if (result.length > 0) {
       return result;
     }
@@ -237,7 +235,6 @@ class DatabaseHelper {
         'ORDER BY COUNT(*) DESC '
         'LIMIT $reqRows',
         [startInv, endInv]);
-    print("#### Result : " + result.toString());
     if (result.length > 0) {
       return result;
     }
@@ -255,7 +252,6 @@ class DatabaseHelper {
             'ORDER BY $columnIVinvoiceAmount DESC '
             'LIMIT $reqRows',
         [startInv, endInv]);
-    print("#### Result : " + result.toString());
     if (result.length > 0) {
       return result;
     }
@@ -274,7 +270,6 @@ class DatabaseHelper {
             'GROUP BY $columnIVinvoiceNumber/1000000 '
             'ORDER BY $columnIVinvoiceAmount DESC ',
         [startInv, endInv]);
-    print("#### Result : " + result.toString());
     if (result.length > 0) {
       return result;
     }

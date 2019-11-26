@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/data/entities.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 
@@ -84,7 +83,9 @@ class TopOrderChartState extends State<TopOrderChart> {
 
     topOrdersSoldList = [];
 
-    allRows.forEach((row) => _addTopOrdersToList(row));
+    if(allRows != null) {
+      allRows.forEach((row) => _addTopOrdersToList(row));
+    }
 
     //Refresh screen with invoices list since this function is an async one
     setState(() {});

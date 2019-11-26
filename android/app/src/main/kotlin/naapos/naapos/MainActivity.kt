@@ -1,4 +1,4 @@
-package in.naapos.naapos
+package naapos.naapos
 
 import android.os.Bundle
 

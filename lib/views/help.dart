@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils_invoice.dart';
 
 class Help extends StatefulWidget {
   Help({Key key, this.title}) : super(key: key);

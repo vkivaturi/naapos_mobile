@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/data/entities.dart';
+import 'package:naapos/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
@@ -21,7 +21,6 @@ class InvoiceHelpers {
       DatabaseHelper.columnIVinvoiceTax: invoice.invoiceTax,
       DatabaseHelper.columnIVinvoiceQuantity: invoice.invoiceQuantity,
     };
-    print(row.toString());
 
     final id = await dbHelper.insertIV(row);
 
@@ -37,6 +36,7 @@ class InvoiceHelpers {
         DatabaseHelper.columnITTax: item.tax,
         DatabaseHelper.columnITUnitPrice: item.unitPrice,
         DatabaseHelper.columnTRTransactionPrice: item.transactionPrice,
+        DatabaseHelper.columnIVinvoiceQuantity: item.qty,
       };
 
       final id = await dbHelper.insertTR(row);

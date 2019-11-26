@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/data/entities.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 
@@ -67,20 +66,23 @@ class TopItemChartState extends State<TopItemChart> {
 
   //Fetch top items list from backend.
   void _queryTopSoldItems() async {
-
     //Set start and end date as today and execute top orders query
     final invNumberFormat = new DateFormat('yyyyMMdd');
     var now = DateTime.now();
-    int searchStartDate = int.parse(int.parse(invNumberFormat.format(now)).toString() + "000000");
-    int searchEndDate = int.parse(int.parse(invNumberFormat.format(now)).toString() + "235959");
+    int searchStartDate =
+        int.parse(int.parse(invNumberFormat.format(now)).toString() + "000000");
+    int searchEndDate =
+        int.parse(int.parse(invNumberFormat.format(now)).toString() + "235959");
     int topItemsNum = 5;
 
-    final allRows =
-        await dbHelper.queryTRTopItemsSold(searchStartDate, searchEndDate, topItemsNum);
+    final allRows = await dbHelper.queryTRTopItemsSold(
+        searchStartDate, searchEndDate, topItemsNum);
 
     topItemsSoldList = [];
 
-    allRows.forEach((row) => _addTopItemsToList(row));
+    if (allRows != null) {
+      allRows.forEach((row) => _addTopItemsToList(row));
+    }
 
     //Refresh screen with invoices list since this function is an async one
     setState(() {});

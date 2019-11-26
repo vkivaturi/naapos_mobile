@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/utils.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/data/entities.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/utils/utils.dart';
+import 'package:naapos/utils/utils_invoice.dart';
 
 class NaaPOSHome extends StatefulWidget {
   NaaPOSHome({Key key, this.title}) : super(key: key);
@@ -119,7 +119,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
       Map<String, Object> row = allRows.elementAt(0);
 
       item = new Item();
-      item.code = int.parse(row["code"]);
+      item.code = row["code"];
       item.itemDetail = row["itemDetail"];
       item.tax = row["tax"];
       item.unitPrice = row["unitPrice"];

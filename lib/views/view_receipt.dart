@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/utils.dart';
-import 'package:naapos/utils_invoice.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:naapos/data/entities.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/utils/utils.dart';
+import 'package:naapos/utils/utils_invoice.dart';
 
 class ViewReceipt extends StatefulWidget {
   ViewReceipt({Key key, this.title, @required this.incomingReceipt})
@@ -60,10 +59,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
         item.itemDetail = row[DatabaseHelper.columnITItemDetail];
         item.tax = row[DatabaseHelper.columnITTax];
         item.unitPrice = row[DatabaseHelper.columnITUnitPrice];
-
-        //TODO Quantity needs to be fixed
-        //item.qty = row[DatabaseHelper.columnIVinvoiceQuantity];
-        item.qty = "0";
+        item.qty = row[DatabaseHelper.columnIVinvoiceQuantity];
 
         items.add(item);
       }

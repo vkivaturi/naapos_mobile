@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/home.dart';
-import 'package:naapos/create_receipt.dart';
-import 'package:naapos/invoice_screen.dart';
-import 'package:naapos/items_catalog.dart';
-import 'package:naapos/utils.dart';
-import 'package:naapos/charts_top_items.dart';
-import 'package:naapos/add_update_delete_item.dart';
+import 'package:naapos/screens/home.dart';
+import 'package:naapos/screens/create_receipt.dart';
+import 'package:naapos/screens/invoice_screen.dart';
+import 'package:naapos/screens/items_catalog.dart';
+import 'package:naapos/utils/utils.dart';
+import 'package:naapos/views/charts_top_items.dart';
+import 'package:naapos/views/add_update_delete_item.dart';
 
 class MainScreen extends StatefulWidget {
   @override

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:naapos/entities.dart';
+import 'package:naapos/data/entities.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 

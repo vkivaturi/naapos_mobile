@@ -1,5 +1,3 @@
-import 'package:charts_flutter/flutter.dart';
-import 'package:flutter/material.dart';
 
 //Item entity is used in multiple places - while creating an invoice, managing product catalog and dashboards
 class Item {

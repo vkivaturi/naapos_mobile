@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'create_receipt.dart';
-import 'package:naapos/items_catalog.dart';
+import 'screens/create_receipt.dart';
+import 'package:naapos/screens/items_catalog.dart';
 import 'package:naapos/navigation.dart';
-import 'package:naapos/utils.dart';
+import 'package:naapos/utils/utils.dart';
 
 
 void main() => runApp(NaaPOSApp());

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:naapos/database_helper.dart';
-import 'package:naapos/entities.dart';
-import 'package:naapos/utils.dart';
-import 'package:naapos/utils_invoice.dart';
+import 'package:naapos/data/database_helper.dart';
+import 'package:naapos/data/entities.dart';
+import 'package:naapos/utils/utils.dart';
+import 'package:naapos/utils/utils_invoice.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
