@@ -4,8 +4,6 @@ import 'package:naapos/data/entities.dart';
 import 'package:naapos/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:csv/csv.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 class InvoiceHelpers {
   //Insert invoice into database table
@@ -13,13 +11,13 @@ class InvoiceHelpers {
       Invoice invoice, List<Item> items, dbHelper, BuildContext context) async {
     // row to insert in invoice table
     Map<String, dynamic> row = {
-      DatabaseHelper.columnIVinvoiceNumber: invoice.invoiceNumber,
-      DatabaseHelper.columnIVoperatorId: invoice.operatorId,
-      DatabaseHelper.columnIVinvoiceDateTime: invoice.invoiceDateTime,
-      DatabaseHelper.columnIVstoreId: invoice.storeId,
-      DatabaseHelper.columnIVinvoiceAmount: invoice.invoiceAmount,
-      DatabaseHelper.columnIVinvoiceTax: invoice.invoiceTax,
-      DatabaseHelper.columnIVinvoiceQuantity: invoice.invoiceQuantity,
+      DatabaseHelper.columnInvoiceNumber: invoice.invoiceNumber,
+      DatabaseHelper.columnOperatorId: invoice.operatorId,
+      DatabaseHelper.columnInvoiceDateTime: invoice.invoiceDateTime,
+      DatabaseHelper.columnStoreId: invoice.storeId,
+      DatabaseHelper.columnInvoiceAmount: invoice.invoiceAmount,
+      DatabaseHelper.columnInvoiceTax: invoice.invoiceTax,
+      DatabaseHelper.columnInvoiceQuantity: invoice.invoiceQuantity,
     };
 
     final id = await dbHelper.insertIV(row);
@@ -29,14 +27,14 @@ class InvoiceHelpers {
     for (var item in items) {
 
       Map<String, dynamic> row = {
-        DatabaseHelper.columnTRTransactionNumber: trnNumber++,
-        DatabaseHelper.columnIVinvoiceNumber: invoice.invoiceNumber,
-        DatabaseHelper.columnITCode: item.code,
-        DatabaseHelper.columnITItemDetail: item.itemDetail,
-        DatabaseHelper.columnITTax: item.tax,
-        DatabaseHelper.columnITUnitPrice: item.unitPrice,
-        DatabaseHelper.columnTRTransactionPrice: item.transactionPrice,
-        DatabaseHelper.columnIVinvoiceQuantity: item.qty,
+        DatabaseHelper.columnTransactionNumber: trnNumber++,
+        DatabaseHelper.columnInvoiceNumber: invoice.invoiceNumber,
+        DatabaseHelper.columnCode: item.code,
+        DatabaseHelper.columnItemDetail: item.itemDetail,
+        DatabaseHelper.columnTax: item.tax,
+        DatabaseHelper.columnUnitPrice: item.unitPrice,
+        DatabaseHelper.columnTransactionPrice: item.transactionPrice,
+        DatabaseHelper.columnInvoiceQuantity: item.qty,
       };
 
       final id = await dbHelper.insertTR(row);

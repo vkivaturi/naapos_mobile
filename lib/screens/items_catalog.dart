@@ -27,14 +27,14 @@ class ItemCatalogState extends State<ItemCatalog> {
   void initState() {
     items = [];
     super.initState();
-
-    //Load all items initially
-    _queryAll();
   }
 
   // homepage layout
   @override
   Widget build(BuildContext context) {
+    //Load all items from catalog - this happens when the screen loads initially or comes back from add/update/delete items
+    _queryAll();
+
     Widget itemsView = ListView.builder(
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
@@ -68,7 +68,9 @@ class ItemCatalogState extends State<ItemCatalog> {
                       color: Colors.white, size: 30.0),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return ManageItem(incomingItem: items[position],);
+                      return ManageItem(
+                        incomingItem: items[position],
+                      );
                     }));
                   },
                 ),
@@ -102,24 +104,23 @@ class ItemCatalogState extends State<ItemCatalog> {
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return ManageItem(incomingItem : null);
+            return ManageItem(incomingItem: null);
           }));
-
         },
       ),
     );
   }
 
-  //Dialog box for edit or delete items based on user input
-
+  //Load all items without any filters
   void _queryAll() async {
     final allRows = await dbHelper.queryITAllRows();
-    print('query all rows:');
     items = [];
     allRows.forEach((row) => _addItemToList(row));
 
-    //Refresh screen with items list since this function is an async one
-    setState(() {});
+    if (this.mounted) {
+      //Refresh screen with items list since this function is an async one
+      setState(() {});
+    }
   }
 
   void _addItemToList(Map<String, Object> row) {

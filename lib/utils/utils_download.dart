@@ -43,10 +43,7 @@ class DownloadHelpers {
 
     print(startInv.toString() + ":" + endInv.toString());
 
-    //Append hhmmss to the start and end dates since invoice number include that as well
-    final allRows = await dbHelper.queryIVInvoiceRange(
-        int.parse(startInv.toString() + "000000"),
-        int.parse(endInv.toString() + "235959"));
+    final allRows = await dbHelper.queryIVInvoiceRange(startInv, endInv);
 
     //Create a list of items
     allRows.forEach((row) => _addInvoiceToList(row));

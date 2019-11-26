@@ -213,8 +213,8 @@ class _DownloadDataState extends State<DownloadData> {
                                       DownloadHelpers.emailInvoiceData(
                                           dbHelper,
                                           emailController.text,
-                                          startInv,
-                                          endInv);
+                                          int.parse(startInv.toString() + "000000"),
+                                          int.parse(startInv.toString() + "235959"));
 
                                       HelperMethods.showMessage(
                                           context,

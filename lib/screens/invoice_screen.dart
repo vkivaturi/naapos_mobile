@@ -45,10 +45,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
 
     super.initState();
     //Load items initially for the current date
-    _queryIVInvoiceRange(
-        int.parse(
-            searchDateFormat.format(selectStartDate.toLocal()) + "000000"),
-        int.parse(searchDateFormat.format(selectEndDate.toLocal()) + "235959"));
   }
 
   Future<Null> _selectStartDate(BuildContext context) async {
@@ -80,6 +76,11 @@ class ManageInvoiceState extends State<ManageInvoice> {
 
   @override
   Widget build(BuildContext context) {
+    _queryIVInvoiceRange(
+        int.parse(
+            searchDateFormat.format(selectStartDate.toLocal()) + "000000"),
+        int.parse(searchDateFormat.format(selectEndDate.toLocal()) + "235959"));
+
     Widget searchInvoice = Container(
         padding: const EdgeInsets.all(2),
         child: Row(
@@ -226,18 +227,6 @@ class ManageInvoiceState extends State<ManageInvoice> {
     }));
   }
 
-  void _queryIVAll() async {
-    final allRows = await dbHelper.queryIVAllRows();
-    invoices = [];
-
-    if (allRows != null && allRows.length > 0) {
-      allRows.forEach((row) => _addInvoiceToList(row));
-    }
-
-    //Refresh screen with invoices list since this function is an async one
-    setState(() {});
-  }
-
   void _queryIVInvoiceRange(int startInv, int endInv) async {
     final allRows = await dbHelper.queryIVInvoiceRange(startInv, endInv);
     invoices = [];
@@ -246,7 +235,9 @@ class ManageInvoiceState extends State<ManageInvoice> {
       allRows.forEach((row) => _addInvoiceToList(row));
     }
     //Refresh screen with invoices list since this function is an async one
-    setState(() {});
+    if (this.mounted) {
+      setState(() {});
+    }
   }
 
   void _addInvoiceToList(Map<String, Object> row) {

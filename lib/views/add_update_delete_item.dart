@@ -24,11 +24,10 @@ class _ManageItemState extends State<ManageItem> {
 
   final _formKey = GlobalKey<FormState>();
 
+  String appBarTitle = "";
+
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
-
-  // Bring focus back to item text field field after adding an item
-  FocusNode nodeItem = FocusNode();
 
   Item item;
   bool isAdd = false;
@@ -42,6 +41,22 @@ class _ManageItemState extends State<ManageItem> {
 
     //Initialise item to incoming item, if available
     item = widget.incomingItem;
+
+    //Item will not be null if the this screen is called for update or delete of the item.
+    // In which case, prefill the values.
+    if (item != null) {
+      isAdd = false;
+      appBarTitle = "Edit item";
+
+      itemCodeController.text = item.code.toString();
+      itemDetailController.text = item.itemDetail;
+      itemTaxController.text = item.tax.toString();
+      itemUnitPriceController.text = item.unitPrice.toString();
+    } else {
+      appBarTitle = "Add item to catalog";
+      item = new Item();
+      isAdd = true;
+    }
   }
 
   @override
@@ -58,58 +73,35 @@ class _ManageItemState extends State<ManageItem> {
   void _insert(Item item) async {
     // row to insert
     Map<String, dynamic> row = {
-      DatabaseHelper.columnITCode: item.code,
-      DatabaseHelper.columnITItemDetail: item.itemDetail,
-      DatabaseHelper.columnITTax: item.tax,
-      DatabaseHelper.columnITUnitPrice: item.unitPrice,
+      DatabaseHelper.columnCode: item.code,
+      DatabaseHelper.columnItemDetail: item.itemDetail,
+      DatabaseHelper.columnTax: item.tax,
+      DatabaseHelper.columnUnitPrice: item.unitPrice,
     };
-    print(row.toString());
     final id = await dbHelper.insertIT(row);
-    print('inserted row id: $id');
+//    print('inserted row id: $id');
   }
 
   void _update(Item item) async {
     // row to update
     Map<String, dynamic> row = {
-      DatabaseHelper.columnITCode: item.code,
-      DatabaseHelper.columnITItemDetail: item.itemDetail,
-      DatabaseHelper.columnITTax: item.tax,
-      DatabaseHelper.columnITUnitPrice: item.unitPrice,
+      DatabaseHelper.columnCode: item.code,
+      DatabaseHelper.columnItemDetail: item.itemDetail,
+      DatabaseHelper.columnTax: item.tax,
+      DatabaseHelper.columnUnitPrice: item.unitPrice,
     };
     final rowsAffected = await dbHelper.updateIT(row);
+//    print('updated $rowsAffected row(s): row $row');
   }
 
   void _delete(int id) async {
     final rowsDeleted = await dbHelper.deleteIT(id);
-    print('deleted $rowsDeleted row(s): row $id');
+//    print('deleted $rowsDeleted row(s): row $id');
   }
 
   //This is the main build method
   @override
   Widget build(BuildContext context) {
-    String appBarTitle;
-
-//Item will not be null if the this screen is called for update or delete of the item.
-// In which case, prefill the values.
-
-    if (item != null) {
-      print("Inside not null item");
-      isAdd = false;
-      appBarTitle = "Update or delete item";
-
-      itemCodeController.text = item.code.toString();
-      itemDetailController.text = item.itemDetail;
-      itemTaxController.text = item.tax.toString();
-      itemUnitPriceController.text = item.unitPrice.toString();
-    } else {
-      appBarTitle = "Add item to catalog";
-
-      item = new Item();
-
-      isAdd = true;
-      print('incoming item is null ');
-    }
-
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -145,7 +137,7 @@ class _ManageItemState extends State<ManageItem> {
                                 border: OutlineInputBorder()),
                             keyboardType: TextInputType.number,
                             controller: itemCodeController,
-                            focusNode: nodeItem,
+
                             //Item code field is enabled for edit only in cases of add
                             enabled: isAdd,
                           ),
@@ -199,7 +191,7 @@ class _ManageItemState extends State<ManageItem> {
                             decoration: new InputDecoration(
                                 labelText: "Unit price",
                                 border: OutlineInputBorder()),
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.number,
                             controller: itemUnitPriceController,
                           ),
                           SizedBox(
@@ -215,26 +207,23 @@ class _ManageItemState extends State<ManageItem> {
                                       color: Colors.green,
                                       onPressed: () {
                                         if (_formKey.currentState.validate()) {
-                                          print("Item code controller text " +
-                                              itemCodeController.text);
 
-                                          item.code = int.parse(
-                                              itemCodeController.text);
-                                          item.itemDetail =
-                                              itemDetailController.text;
-                                          item.tax = itemTaxController.text;
-                                          item.unitPrice =
-                                              itemUnitPriceController.text;
+                                          item.setItem(
+                                              int.parse(
+                                                  itemCodeController.text),
+                                              itemDetailController.text,
+                                              "",
+                                              itemTaxController.text,
+                                              itemUnitPriceController.text,
+                                              "");
 
                                           _insert(item);
 
+                                          //Clear the fields on screen to allow new item addition
                                           itemCodeController.clear();
                                           itemDetailController.clear();
                                           itemTaxController.clear();
                                           itemUnitPriceController.clear();
-
-                                          FocusScope.of(context)
-                                              .requestFocus(nodeItem);
 
                                           HelperMethods.showMessage(
                                               context,
@@ -260,13 +249,15 @@ class _ManageItemState extends State<ManageItem> {
                                       color: Colors.orangeAccent,
                                       onPressed: () {
                                         if (_formKey.currentState.validate()) {
-                                          item.code = int.parse(
-                                              itemCodeController.text);
-                                          item.itemDetail =
-                                              itemDetailController.text;
-                                          item.tax = itemTaxController.text;
-                                          item.unitPrice =
-                                              itemUnitPriceController.text;
+
+                                          item.setItem(
+                                              int.parse(
+                                                  itemCodeController.text),
+                                              itemDetailController.text,
+                                              "",
+                                              itemTaxController.text,
+                                              itemUnitPriceController.text,
+                                              "");
 
                                           _update(item);
 
@@ -275,6 +266,7 @@ class _ManageItemState extends State<ManageItem> {
                                               Colors.green,
                                               "Item is updated successfully");
 
+                                          //Go back to the item list page
                                           Navigator.of(context,
                                                   rootNavigator: true)
                                               .pop();
@@ -306,6 +298,7 @@ class _ManageItemState extends State<ManageItem> {
 
                                           _delete(item.code);
 
+                                          //Go back to the item list page
                                           HelperMethods.showMessage(
                                               context,
                                               Colors.green,

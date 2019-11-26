@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naapos/data/entities.dart';
 import 'package:naapos/data/database_helper.dart';
 import 'package:naapos/utils/utils.dart';
-import 'package:naapos/utils/utils_invoice.dart';
+import 'package:naapos/utils/utils_download.dart';
 
 class ViewReceipt extends StatefulWidget {
   ViewReceipt({Key key, this.title, @required this.incomingReceipt})
@@ -31,6 +31,9 @@ class _ViewReceiptState extends State<ViewReceipt> {
 
   _ViewReceiptState({this.receipt});
 
+  //TODO get email from account setting
+  String emailAddress = "test@test.com";
+
   @override
   void initState() {
     super.initState();
@@ -55,11 +58,11 @@ class _ViewReceiptState extends State<ViewReceipt> {
       for (var row in allRows) {
         item = new Item();
 
-        item.code = row[DatabaseHelper.columnITCode];
-        item.itemDetail = row[DatabaseHelper.columnITItemDetail];
-        item.tax = row[DatabaseHelper.columnITTax];
-        item.unitPrice = row[DatabaseHelper.columnITUnitPrice];
-        item.qty = row[DatabaseHelper.columnIVinvoiceQuantity];
+        item.code = row[DatabaseHelper.columnCode];
+        item.itemDetail = row[DatabaseHelper.columnItemDetail];
+        item.tax = row[DatabaseHelper.columnTax];
+        item.unitPrice = row[DatabaseHelper.columnUnitPrice];
+        item.qty = row[DatabaseHelper.columnInvoiceQuantity];
 
         items.add(item);
       }
@@ -67,6 +70,14 @@ class _ViewReceiptState extends State<ViewReceipt> {
       //Refresh the list
       setState(() {});
     }
+  }
+
+  //Delete selected receipt and all corresponding transactions
+  void _delete(int id) async {
+    final rowsDeleted = await dbHelper.deleteIV(id);
+//    print('deleted $rowsDeleted row(s): row $id');
+
+    final rowsTransactionsDeleted = await dbHelper.deleteTR(id);
   }
 
   //This is the main build method
@@ -122,55 +133,75 @@ class _ViewReceiptState extends State<ViewReceipt> {
             )));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Receipt " + receipt.invoiceNumber.toString(),
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 20.0, color: Colors.white),
+        appBar: AppBar(
+          title: Text(
+            "Receipt " + receipt.invoiceNumber.toString(),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20.0, color: Colors.white),
+          ),
+          //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
         ),
-        //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
-      ),
-      body: SingleChildScrollView(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(),
-              child: Column(
-                children: [
-                  Divider(
-                    height: 2.0,
-                    color: Colors.grey,
-                  ),
-                  itemSummary,
-                  Divider(
-                    height: 2.0,
-                    color: Colors.grey,
-                  ),
-                  ItemsView,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[],
-                  ),
-                ],
-              ))),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.save),
-        onPressed: () {
-          if (items.length > 0) {
-            Invoice invoice = InvoiceHelpers.buildInvoice(
-                items, invTotalAmt, invQuantity, invTax);
+        body: SingleChildScrollView(
+            child: ConstrainedBox(
+                constraints: BoxConstraints(),
+                child: Column(
+                  children: [
+                    Divider(
+                      height: 2.0,
+                      color: Colors.grey,
+                    ),
+                    itemSummary,
+                    Divider(
+                      height: 2.0,
+                      color: Colors.grey,
+                    ),
+                    ItemsView,
+                  ],
+                ))),
+        floatingActionButton: Builder(
+          //Added this builder only to make snackbar work
+          builder: (context) => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                child: IconButton(
+                  onPressed: () {
+                    //Send email
+                    DownloadHelpers.emailInvoiceData(dbHelper, emailAddress,
+                        receipt.invoiceNumber, receipt.invoiceNumber);
 
-            InvoiceHelpers.insert(invoice, items, dbHelper, context);
+                    HelperMethods.showMessage(context, Colors.green,
+                        "Receipts list is emailed to " + emailAddress);
+                  },
+                  icon: Icon(
+                    Icons.email,
+                    size: 40.0,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+              Container(
+                child: IconButton(
+                  color: Colors.black,
+                  onPressed: () {
+                    _delete(receipt.invoiceNumber);
 
-            //TODO - Resetting values without checking for success of database operation
-            setState(() {
-              items = [];
-            });
-          } else {
-            HelperMethods.showMessage(context, Colors.deepOrange,
-                "Please add at least 1 item to create invoice");
-          }
-        },
-      ),
-    );
+                    //Go back to the receipt list page
+                    Navigator.of(context, rootNavigator: true).pop();
+
+                    HelperMethods.showMessage(
+                        context, Colors.green, "Receipts is deleted");
+                  },
+                  icon: Icon(
+                    Icons.delete,
+                    size: 40.0,
+                    color: Colors.red,
+                  ),
+                ), //Text('Add item', style: TextStyle(fontSize: 25))),
+              )
+            ],
+          ),
+        ));
   }
 }

@@ -4,33 +4,31 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:naapos/data/entities.dart';
-
 class DatabaseHelper {
   static final _databaseName = "Items.db";
   static final _databaseVersion = 1;
 
   //Table to store item level information
   static final itemTable = 'items_table';
-  static final columnITCode = 'code';
-  static final columnITItemDetail = 'itemDetail';
-  static final columnITTax = 'tax';
-  static final columnITUnitPrice = 'unitPrice';
+  static final columnCode = 'code';
+  static final columnItemDetail = 'itemDetail';
+  static final columnTax = 'tax';
+  static final columnUnitPrice = 'unitPrice';
 
   //Table to store transactions that are part of an invoice. This table includes all columns from Items table
   static final transactionTable = 'transaction_table';
-  static final columnTRTransactionPrice = 'transactionPrice';
-  static final columnTRTransactionNumber = 'transactionNumber';
+  static final columnTransactionPrice = 'transactionPrice';
+  static final columnTransactionNumber = 'transactionNumber';
 
   //Table to store invoice information
   static final invoiceTable = 'invoice_table';
-  static final columnIVinvoiceDateTime = 'invoiceDateTime';
-  static final columnIVoperatorId = 'operatorId';
-  static final columnIVstoreId = 'storeId';
-  static final columnIVinvoiceNumber = 'invoiceNumber';
-  static final columnIVinvoiceAmount = 'invoiceAmount';
-  static final columnIVinvoiceTax = 'invoiceTax';
-  static final columnIVinvoiceQuantity = 'invoiceQuantity';
+  static final columnInvoiceDateTime = 'invoiceDateTime';
+  static final columnOperatorId = 'operatorId';
+  static final columnStoreId = 'storeId';
+  static final columnInvoiceNumber = 'invoiceNumber';
+  static final columnInvoiceAmount = 'invoiceAmount';
+  static final columnInvoiceTax = 'invoiceTax';
+  static final columnInvoiceQuantity = 'invoiceQuantity';
 
   // make this a singleton class
   DatabaseHelper._privateConstructor();
@@ -60,10 +58,10 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $itemTable (
-            $columnITCode INT PRIMARY KEY,
-            $columnITItemDetail TEXT NOT NULL,
-            $columnITTax TEXT NOT NULL,
-            $columnITUnitPrice TEXT NOT NULL
+            $columnCode INT PRIMARY KEY,
+            $columnItemDetail TEXT NOT NULL,
+            $columnTax TEXT NOT NULL,
+            $columnUnitPrice TEXT NOT NULL
           )
           ''');
 
@@ -75,27 +73,27 @@ class DatabaseHelper {
 
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $transactionTable (
-            $columnTRTransactionNumber INT NOT NULL,
-            $columnIVinvoiceNumber INT NOT NULL,
-            $columnTRTransactionPrice TEXT NOT NULL,
-            $columnITCode INT,
-            $columnITItemDetail TEXT NOT NULL,
-            $columnITTax TEXT NOT NULL,
-            $columnITUnitPrice TEXT NOT NULL,
-            $columnIVinvoiceQuantity TEXT NOT NULL,
-            PRIMARY KEY($columnIVinvoiceNumber, $columnTRTransactionNumber)
+            $columnTransactionNumber INT NOT NULL,
+            $columnInvoiceNumber INT NOT NULL,
+            $columnTransactionPrice TEXT NOT NULL,
+            $columnCode INT,
+            $columnItemDetail TEXT NOT NULL,
+            $columnTax TEXT NOT NULL,
+            $columnUnitPrice TEXT NOT NULL,
+            $columnInvoiceQuantity TEXT NOT NULL,
+            PRIMARY KEY($columnInvoiceNumber, $columnTransactionNumber)
           ) 
           ''');
 
     await db.execute('''
           CREATE TABLE IF NOT EXISTS $invoiceTable (
-            $columnIVinvoiceNumber INT PRIMARY KEY,
-            $columnIVinvoiceDateTime TEXT,
-            $columnIVoperatorId TEXT,
-            $columnIVstoreId TEXT,
-            $columnIVinvoiceAmount TEXT,
-            $columnIVinvoiceQuantity TEXT,
-            $columnIVinvoiceTax TEXT                   
+            $columnInvoiceNumber INT PRIMARY KEY,
+            $columnInvoiceDateTime TEXT,
+            $columnOperatorId TEXT,
+            $columnStoreId TEXT,
+            $columnInvoiceAmount TEXT,
+            $columnInvoiceQuantity TEXT,
+            $columnInvoiceTax TEXT                   
           );
           ''');
   }
@@ -136,12 +134,12 @@ class DatabaseHelper {
     Database db = await instance.database;
     List<Map<String, dynamic>> result = await db.query(itemTable,
         columns: [
-          columnITCode,
-          columnITItemDetail,
-          columnITTax,
-          columnITUnitPrice
+          columnCode,
+          columnItemDetail,
+          columnTax,
+          columnUnitPrice
         ],
-        where: '$columnITCode = ?',
+        where: '$columnCode = ?',
         whereArgs: [id]);
     if (result.length > 0) {
       return result;
@@ -156,7 +154,7 @@ class DatabaseHelper {
 
     List<Map<String, dynamic>> result = await db.query(transactionTable,
         where:
-            '$columnIVinvoiceNumber = ?',
+            '$columnInvoiceNumber = ?',
         whereArgs: [invoiceNumber]);
     if (result.length > 0) {
       return result;
@@ -170,7 +168,7 @@ class DatabaseHelper {
     Database db = await instance.database;
 
     List<Map<String, dynamic>> result = await db.query(invoiceTable,
-        where: '$columnIVinvoiceNumber >= ? and $columnIVinvoiceNumber <= ?',
+        where: '$columnInvoiceNumber >= ? and $columnInvoiceNumber <= ?',
         whereArgs: [startInv, endInv]);
     if (result.length > 0) {
       return result;
@@ -196,29 +194,30 @@ class DatabaseHelper {
   // column values will be used to update the row.
   Future<int> updateIT(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    int id = row[columnITCode];
+    int id = row[columnCode];
+    print("Inside update " + id.toString());
     return await db
-        .update(itemTable, row, where: '$columnITCode = ?', whereArgs: [id]);
+        .update(itemTable, row, where: '$columnCode = ?', whereArgs: [id]);
   }
-//  Future<int> updateIV(Map<String, dynamic> row) async {
-//    Database db = await instance.database;
-//    int id = row[columnIVinvoiceNumber];
-//    return await db
-//        .update(invoiceTable, row, where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
-//  }
 
   // Deletes the row specified by the id. The number of affected rows is
   // returned. This should be 1 as long as the row exists.
   Future<int> deleteIT(int id) async {
     Database db = await instance.database;
     return await db
-        .delete(itemTable, where: '$columnITCode = ?', whereArgs: [id]);
+        .delete(itemTable, where: '$columnCode = ?', whereArgs: [id]);
   }
 
   Future<int> deleteIV(int id) async {
     Database db = await instance.database;
     return await db.delete(invoiceTable,
-        where: '$columnIVinvoiceNumber = ?', whereArgs: [id]);
+        where: '$columnInvoiceNumber = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteTR(int invoiceNumber) async {
+    Database db = await instance.database;
+    return await db.delete(invoiceTable,
+        where: '$columnInvoiceNumber = ?', whereArgs: [invoiceNumber]);
   }
 
   //Reporting queries
@@ -229,9 +228,9 @@ class DatabaseHelper {
     Database db = await instance.database;
 
     List<Map> result = await db.rawQuery(
-        'SELECT $columnITItemDetail, COUNT(*) AS soldCount FROM $transactionTable '
-        'WHERE $columnITItemDetail IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
-        'GROUP BY $columnITItemDetail '
+        'SELECT $columnItemDetail, COUNT(*) AS soldCount FROM $transactionTable '
+        'WHERE $columnItemDetail IS NOT NULL AND $columnInvoiceNumber >= ? AND $columnInvoiceNumber <= ? '
+        'GROUP BY $columnItemDetail '
         'ORDER BY COUNT(*) DESC '
         'LIMIT $reqRows',
         [startInv, endInv]);
@@ -247,9 +246,9 @@ class DatabaseHelper {
     Database db = await instance.database;
 
     List<Map> result = await db.rawQuery(
-        'SELECT $columnIVinvoiceNumber, $columnIVinvoiceAmount AS soldCount FROM $invoiceTable '
-            'WHERE $columnIVinvoiceAmount IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
-            'ORDER BY $columnIVinvoiceAmount DESC '
+        'SELECT $columnInvoiceNumber, $columnInvoiceAmount AS soldCount FROM $invoiceTable '
+            'WHERE $columnInvoiceAmount IS NOT NULL AND $columnInvoiceNumber >= ? AND $columnInvoiceNumber <= ? '
+            'ORDER BY $columnInvoiceAmount DESC '
             'LIMIT $reqRows',
         [startInv, endInv]);
     if (result.length > 0) {
@@ -265,10 +264,10 @@ class DatabaseHelper {
 
     //Manipulation of invoice date is needed since we want to group by yyyyMMdd while the invoice number format is yyyyMMddHHmmSS
     List<Map> result = await db.rawQuery(
-        'SELECT CAST($columnIVinvoiceNumber/1000000 as int) as saleDate, COUNT(*) as saleCount, SUM($columnIVinvoiceAmount) as saleAmount FROM $invoiceTable '
-            'WHERE $columnIVinvoiceAmount IS NOT NULL AND $columnIVinvoiceNumber >= ? AND $columnIVinvoiceNumber <= ? '
-            'GROUP BY $columnIVinvoiceNumber/1000000 '
-            'ORDER BY $columnIVinvoiceAmount DESC ',
+        'SELECT CAST($columnInvoiceNumber/1000000 as int) as saleDate, COUNT(*) as saleCount, SUM($columnInvoiceAmount) as saleAmount FROM $invoiceTable '
+            'WHERE $columnInvoiceAmount IS NOT NULL AND $columnInvoiceNumber >= ? AND $columnInvoiceNumber <= ? '
+            'GROUP BY $columnInvoiceNumber/1000000 '
+            'ORDER BY $columnInvoiceAmount DESC ',
         [startInv, endInv]);
     if (result.length > 0) {
       return result;

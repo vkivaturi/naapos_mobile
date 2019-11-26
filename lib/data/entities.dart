@@ -16,7 +16,7 @@ class Item {
       this.unitPrice,
       this.transactionPrice});
 
-  void setItem(String slNo, int code, String itemDetail, String qty, String tax,
+  void setItem(int code, String itemDetail, String qty, String tax,
       String unitPrice, String transactionPrice) {
     this.code = code;
     this.itemDetail = itemDetail;
