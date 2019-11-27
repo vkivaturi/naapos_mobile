@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:sqflite/sqflite.dart';
 
 List<Item> items = [];
 List<Invoice> invoices = [];
@@ -30,10 +31,10 @@ class DownloadHelpers {
 
   static void _addItemToList(Map<String, Object> row) {
     Item item = new Item();
-    item.code = int.parse(row["code"]);
-    item.itemDetail = row["itemDetail"];
-    item.tax = row["tax"];
-    item.unitPrice = row["unitPrice"];
+    item.code = row[DatabaseHelper.columnCode];
+    item.itemDetail = row[DatabaseHelper.columnItemDetail];
+    item.tax = row[DatabaseHelper.columnTax];
+    item.unitPrice = row[DatabaseHelper.columnUnitPrice];
     items.add(item);
   }
 

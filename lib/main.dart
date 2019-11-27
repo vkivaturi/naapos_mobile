@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'screens/create_receipt.dart';
-import 'package:naapos/screens/items_catalog.dart';
+import 'package:naapos/screens/manage_item.dart';
 import 'package:naapos/navigation.dart';
 import 'package:naapos/utils/utils.dart';
 

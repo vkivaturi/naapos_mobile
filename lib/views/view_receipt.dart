@@ -31,12 +31,18 @@ class _ViewReceiptState extends State<ViewReceipt> {
 
   _ViewReceiptState({this.receipt});
 
-  //TODO get email from account setting
-  String emailAddress = "test@test.com";
+  //Set email id from shared preferences
+  String emailIdPreference;
+  Future getEmailFromPreferences() async {
+    emailIdPreference =
+    await HelperMethods.getUserPreferences(Constants.emailId);
+  }
 
   @override
   void initState() {
     super.initState();
+
+    getEmailFromPreferences();
 
     items = [];
     //Initialise receipt number to incoming receipt number, if available
@@ -137,7 +143,7 @@ class _ViewReceiptState extends State<ViewReceipt> {
           title: Text(
             "Receipt " + receipt.invoiceNumber.toString(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 20.0, color: Colors.white),
+            style: TextStyle(fontSize: 20.0, color: Colors.pink),
           ),
           //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
         ),
@@ -168,11 +174,11 @@ class _ViewReceiptState extends State<ViewReceipt> {
                 child: IconButton(
                   onPressed: () {
                     //Send email
-                    DownloadHelpers.emailInvoiceData(dbHelper, emailAddress,
+                    DownloadHelpers.emailInvoiceData(dbHelper, emailIdPreference,
                         receipt.invoiceNumber, receipt.invoiceNumber);
 
                     HelperMethods.showMessage(context, Colors.green,
-                        "Receipts list is emailed to " + emailAddress);
+                        "Receipts list is emailed to " + emailIdPreference);
                   },
                   icon: Icon(
                     Icons.email,

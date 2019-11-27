@@ -181,7 +181,7 @@ class DatabaseHelper {
   Future<int> queryITRowCount() async {
     Database db = await instance.database;
     return Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM $itemTable'));
+        await db.rawQuery('SELECT COUNT(*) as countIT FROM $itemTable'));
   }
 
   Future<int> queryIVRowCount() async {
@@ -195,7 +195,6 @@ class DatabaseHelper {
   Future<int> updateIT(Map<String, dynamic> row) async {
     Database db = await instance.database;
     int id = row[columnCode];
-    print("Inside update " + id.toString());
     return await db
         .update(itemTable, row, where: '$columnCode = ?', whereArgs: [id]);
   }
@@ -274,5 +273,13 @@ class DatabaseHelper {
     }
     return null;
   }
+
+  //Get database size
+  Future<int> getDatabaseSize() async {
+    Database db = await instance.database;
+    return Sqflite.firstIntValue(
+        await db.rawQuery('SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size()'));
+  }
+
 
 }

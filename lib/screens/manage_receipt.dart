@@ -163,27 +163,29 @@ class ManageInvoiceState extends State<ManageInvoice> {
         itemCount: invoices.length,
         itemBuilder: (context, position) {
           return Card(
-              //color: Colors.grey,
+//              color: position.isEven? Colors.deepPurple : Colors.deepPurple,
               elevation: 2.0,
               child: ListTile(
+                contentPadding:
+                EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
                 leading: Container(
                   padding: EdgeInsets.only(right: 12.0),
-                  width: 120.0,
+                  width: 100.0,
                   decoration: new BoxDecoration(
                       border: new Border(
                           right: new BorderSide(
                               width: 5.0, color: Colors.white24))),
                   child: Text(
                       "Rs. " + invoices[position].invoiceAmount.toString(),
-                      style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                      style: TextStyle(fontSize: 20.0, color: Colors.orange)),
                 ),
                 title: Text(invoices[position].invoiceNumber.toString(),
-                    style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                    style: TextStyle(fontSize: 19.0, color: Colors.white)),
                 subtitle: Text(invoices[position].invoiceDateTime,
                     style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 trailing: IconButton(
                   icon: Icon(Icons.keyboard_arrow_right,
-                      color: Colors.white, size: 30.0),
+                      color: Colors.blue, size: 40.0),
                   onPressed: () {
                     _viewInvoiceDialog(position);
                   },
@@ -194,9 +196,9 @@ class ManageInvoiceState extends State<ManageInvoice> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Manage invoices',
+          'Manage receipts',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 25.0, color: Colors.white),
+          style: TextStyle(fontSize: 30.0, color: Colors.pink),
         ),
       ),
       body: SingleChildScrollView(

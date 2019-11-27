@@ -31,11 +31,23 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
 
   //Lists of map to store items added
   List<Item> items;
-//  List<Item> selectedItems;
+
+  //Operator and Store id from shared preferences
+  String operatorIdPreference, storeIdPreference;
+  Future getDataFromPreferences() async {
+    operatorIdPreference =
+    await HelperMethods.getUserPreferences(Constants.operatorId);
+
+    storeIdPreference =
+    await HelperMethods.getUserPreferences(Constants.storeId);
+
+  }
 
   @override
   void initState() {
     items = [];
+    //Fetch preferences to be used in receipt creation
+    getDataFromPreferences();
     super.initState();
   }
 
@@ -106,7 +118,6 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
   //Query database for the user enter item code.
   queryForItem(String _code, String qty) async {
     final allRows = await dbHelper.queryITCode(int.parse(_code));
-    print('query one row :' + _code);
     Item item;
 
     if (allRows == null) {
@@ -119,10 +130,10 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
       Map<String, Object> row = allRows.elementAt(0);
 
       item = new Item();
-      item.code = row["code"];
-      item.itemDetail = row["itemDetail"];
-      item.tax = row["tax"];
-      item.unitPrice = row["unitPrice"];
+      item.code = row[DatabaseHelper.columnCode];
+      item.itemDetail = row[DatabaseHelper.columnItemDetail];
+      item.tax = row[DatabaseHelper.columnTax];
+      item.unitPrice = row[DatabaseHelper.columnUnitPrice];
       item.qty = qty;
 
       double transactionAmount = calculateTransactionAmt(
@@ -275,7 +286,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
                               "There are errors in your input data. Please fix them");
                         }
                       },
-                      child: Text('Add item', style: TextStyle(fontSize: 25))),
+                      child: Text('Add item', style: TextStyle(fontSize: 20))),
                 )
               ],
             )));
@@ -285,7 +296,7 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         title: Text(
           "Customer billing",
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 25.0, color: Colors.white),
+          style: TextStyle(fontSize: 30.0, color: Colors.pink),
         ),
         //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
@@ -317,12 +328,15 @@ class _NaaPOSHomeState extends State<NaaPOSHome> {
         onPressed: () {
           if (items.length > 0) {
             Invoice invoice = InvoiceHelpers.buildInvoice(
-                items, invTotalAmt, invQuantity, invTax);
+                items, invTotalAmt, invQuantity, invTax, operatorIdPreference, storeIdPreference);
 
             InvoiceHelpers.insert(invoice, items, dbHelper, context);
 
             //TODO - Resetting values without checking for success of database operation
             setState(() {
+              invTotalAmt = 0;
+              invTax = 0;
+              invQuantity = 0;
               items = [];
             });
           } else {

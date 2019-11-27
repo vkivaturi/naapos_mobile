@@ -19,7 +19,7 @@ class _DashboardState extends State<Dashboard> {
         title: Text(
           "Naa POS Home",
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 25.0, color: Colors.white),
+          style: TextStyle(fontSize: 30.0, color: Colors.pink),
         ),
 //        backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
       ),
@@ -35,7 +35,7 @@ class _DashboardState extends State<Dashboard> {
             makeDashboardItem("Weekly trends", Icons.graphic_eq, Colors.yellow,
                 TrendsChart()),
             makeDashboardItem(
-                "Know about Naa POS", Icons.help, Colors.orange, Help()),
+                "Naa POS Help", Icons.help, Colors.orange, Help()),
             makeDashboardItem("Add new item", Icons.add_box,
                 Colors.deepPurpleAccent, ManageItem(incomingItem: null,)),
             makeDashboardItem("Download data", Icons.file_download,

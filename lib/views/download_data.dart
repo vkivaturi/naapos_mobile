@@ -29,12 +29,25 @@ class _DownloadDataState extends State<DownloadData> {
   // reference to our single class that manages the database
   final dbHelper = DatabaseHelper.instance;
 
+  String emailIdPreference;
+
   @override
   void initState() {
     startDateController.text = showDateFormat.format(selectStartDate.toLocal());
     endDateController.text = showDateFormat.format(selectEndDate.toLocal());
 
+    //Initialize email id
+    getEmailFromPreferences();
+
     super.initState();
+  }
+
+  Future getEmailFromPreferences() async {
+    emailIdPreference =
+        await HelperMethods.getUserPreferences(Constants.emailId);
+    emailIdPreference != null
+        ? emailController.text = emailIdPreference
+        : emailController.text = "";
   }
 
   @override
@@ -82,7 +95,7 @@ class _DownloadDataState extends State<DownloadData> {
           title: Text(
             "Download items and receipts",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 25.0, color: Colors.white),
+            style: TextStyle(fontSize: 20.0, color: Colors.pink),
           ),
           //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
         ),
@@ -111,7 +124,8 @@ class _DownloadDataState extends State<DownloadData> {
                             },
                             decoration: new InputDecoration(
                                 labelText: "Email address",
-                                border: OutlineInputBorder()),
+                                border: OutlineInputBorder(),
+                                suffixIcon: Icon(Icons.email)),
                             keyboardType: TextInputType.emailAddress,
                             controller: emailController,
                           ),
@@ -135,7 +149,8 @@ class _DownloadDataState extends State<DownloadData> {
                             decoration: new InputDecoration(
                                 labelText:
                                     "Receipts start date (not required for item catalog)",
-                                border: OutlineInputBorder()),
+                                border: OutlineInputBorder(),
+                                suffixIcon: Icon(Icons.date_range)),
                             keyboardType: TextInputType.text,
                             controller: startDateController,
                           ),
@@ -153,7 +168,8 @@ class _DownloadDataState extends State<DownloadData> {
                             decoration: new InputDecoration(
                                 labelText:
                                     "Receipts end date (not required for item catalog)",
-                                border: OutlineInputBorder()),
+                                border: OutlineInputBorder(),
+                                suffixIcon: Icon(Icons.date_range)),
                             keyboardType: TextInputType.text,
                             controller: endDateController,
                           ),
@@ -213,8 +229,10 @@ class _DownloadDataState extends State<DownloadData> {
                                       DownloadHelpers.emailInvoiceData(
                                           dbHelper,
                                           emailController.text,
-                                          int.parse(startInv.toString() + "000000"),
-                                          int.parse(startInv.toString() + "235959"));
+                                          int.parse(
+                                              startInv.toString() + "000000"),
+                                          int.parse(
+                                              startInv.toString() + "235959"));
 
                                       HelperMethods.showMessage(
                                           context,

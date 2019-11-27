@@ -107,7 +107,7 @@ class _ManageItemState extends State<ManageItem> {
           title: Text(
             appBarTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 25.0, color: Colors.white),
+            style: TextStyle(fontSize: 25.0, color: Colors.pink),
           ),
           //backgroundColor: Color.fromRGBO(49, 87, 110, 1.0),
         ),

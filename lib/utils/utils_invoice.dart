@@ -47,7 +47,7 @@ class InvoiceHelpers {
 
   //Build invoice entity
   static Invoice buildInvoice(
-      List<Item> items, double invTotalAmt, int invQuantity, double invTax) {
+      List<Item> items, double invTotalAmt, int invQuantity, double invTax, String operatorId, String storeId) {
     final invDateFormat = new DateFormat('yyyy-MM-dd HH:mm');
     final invNumberFormat = new DateFormat('yyyyMMddHHmmss');
 
@@ -55,12 +55,9 @@ class InvoiceHelpers {
 
     Invoice invoice = new Invoice();
 
-    //Create CSV version of the list of items, including the line item level calculated price.
-//    invoice.transactionsCSV = HelperMethods.convertItemsListToCSV(items);
-
     invoice.invoiceDateTime = invDateFormat.format(now);
-    invoice.storeId = "STORE-001";
-    invoice.operatorId = "OP-999";
+    invoice.storeId = storeId != null ? storeId : "Store-0";
+    invoice.operatorId = operatorId != null ? operatorId : "Operator-0";
     invoice.invoiceNumber = int.parse(invNumberFormat.format(now));
     invoice.invoiceAmount = invTotalAmt;
     invoice.invoiceQuantity = invQuantity;
@@ -69,37 +66,4 @@ class InvoiceHelpers {
     return invoice;
   }
 
-  //Convert invoices into a csv string. This is used for emailing
-//  static String convertInvoicesListToCSV(List<Invoice> invoices) {
-//    List<List<dynamic>> rows = List<List<dynamic>>();
-//
-//    for (var invoice in invoices) {
-//      List<dynamic> row = List();
-//
-//      row.add(invoice.invoiceNumber);
-//      row.add(invoice.operatorId);
-//      row.add(invoice.invoiceAmount);
-//      row.add(invoice.invoiceDateTime);
-//      row.add(invoice.storeId);
-//      row.add(invoice.invoiceTax);
-//      row.add(invoice.invoiceQuantity);
-////      row.add(invoice.transactionsCSV);
-//
-//      rows.add(row);
-//    }
-  //Delimiter used here is "," while the one used inside transaction is "^"
-//    return ListToCsvConverter(fieldDelimiter: ",").convert(rows);
-//  }
-
-  //Send email with the dump of invoices in email body
-//  static void emailInvoice(String invoicesCSV, String emailId) async {
-//    final Email email = Email(
-//      body: invoicesCSV,
-//      subject: 'Invoices list extract',
-//      recipients: [emailId],
-//      isHTML: false,
-//    );
-//
-//    await FlutterEmailSender.send(email);
-//  }
 }

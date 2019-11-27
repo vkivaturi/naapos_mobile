@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:naapos/data/entities.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Constants {
   static String appName = "Point of Sale";
+  static String operatorId = "operatorId";
+  static String storeId = "storeId";
+  static String emailId = "emailId";
 
   //Colors for theme
   static Color lightPrimary = Color(0xfffcfcff);
@@ -28,9 +32,6 @@ class Constants {
           fontSize: 24.0,
         ),
       ),
-//      iconTheme: IconThemeData(
-//        color: lightAccent,
-//      ),
     ),
   );
 
@@ -49,9 +50,6 @@ class Constants {
           fontWeight: FontWeight.w800,
         ),
       ),
-//      iconTheme: IconThemeData(
-//        color: darkAccent,
-//      ),
     ),
   );
 }
@@ -119,6 +117,18 @@ class HelperMethods {
       isHTML: false,
     );
     await FlutterEmailSender.send(email);
+  }
+
+  //Save user preferences to app
+  static saveUserPreferences(String key, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(key, value);
+  }
+
+  //Save user preferences to app
+  static Future<String> getUserPreferences(String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.get(key);
   }
 
 }

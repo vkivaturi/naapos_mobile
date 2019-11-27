@@ -29,6 +29,27 @@ class ItemCatalogState extends State<ItemCatalog> {
     super.initState();
   }
 
+  //Load all items without any filters
+  void _queryAll() async {
+    final allRows = await dbHelper.queryITAllRows();
+    items = [];
+    allRows.forEach((row) => _addItemToList(row));
+
+    if (this.mounted) {
+      //Refresh screen with items list since this function is an async one
+      setState(() {});
+    }
+  }
+
+  void _addItemToList(Map<String, Object> row) {
+    Item item = new Item();
+    item.code = row[DatabaseHelper.columnCode];
+    item.itemDetail = row[DatabaseHelper.columnItemDetail];
+    item.tax = row[DatabaseHelper.columnTax];
+    item.unitPrice = row[DatabaseHelper.columnUnitPrice];
+    items.add(item);
+  }
+
   // homepage layout
   @override
   Widget build(BuildContext context) {
@@ -42,9 +63,10 @@ class ItemCatalogState extends State<ItemCatalog> {
         itemBuilder: (context, position) {
           return Card(
               elevation: 2.0,
+//              color: position.isEven? Colors.blue : Colors.blue,
               child: ListTile(
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                    EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
                 leading: Container(
                   padding: EdgeInsets.only(right: 12.0),
                   decoration: new BoxDecoration(
@@ -52,7 +74,7 @@ class ItemCatalogState extends State<ItemCatalog> {
                           right: new BorderSide(
                               width: 5.0, color: Colors.white24))),
                   child: Text(items[position].code.toString(),
-                      style: TextStyle(fontSize: 20.0, color: Colors.white)),
+                      style: TextStyle(fontSize: 20.0, color: Colors.green)),
                 ),
                 title: Text(items[position].itemDetail,
                     style: TextStyle(fontSize: 20.0, color: Colors.white)),
@@ -65,7 +87,7 @@ class ItemCatalogState extends State<ItemCatalog> {
                     style: TextStyle(fontSize: 15.0, color: Colors.white)),
                 trailing: IconButton(
                   icon: Icon(Icons.keyboard_arrow_right,
-                      color: Colors.white, size: 30.0),
+                      color: Colors.blue, size: 40.0),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return ManageItem(
@@ -82,7 +104,7 @@ class ItemCatalogState extends State<ItemCatalog> {
         title: Text(
           'Manage items',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 25.0, color: Colors.white),
+          style: TextStyle(fontSize: 30.0, color: Colors.pink),
         ),
       ),
       body: SingleChildScrollView(
@@ -109,26 +131,5 @@ class ItemCatalogState extends State<ItemCatalog> {
         },
       ),
     );
-  }
-
-  //Load all items without any filters
-  void _queryAll() async {
-    final allRows = await dbHelper.queryITAllRows();
-    items = [];
-    allRows.forEach((row) => _addItemToList(row));
-
-    if (this.mounted) {
-      //Refresh screen with items list since this function is an async one
-      setState(() {});
-    }
-  }
-
-  void _addItemToList(Map<String, Object> row) {
-    Item item = new Item();
-    item.code = row["code"];
-    item.itemDetail = row["itemDetail"];
-    item.tax = row["tax"];
-    item.unitPrice = row["unitPrice"];
-    items.add(item);
   }
 }

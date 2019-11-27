@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:naapos/screens/home.dart';
 import 'package:naapos/screens/create_receipt.dart';
-import 'package:naapos/screens/invoice_screen.dart';
-import 'package:naapos/screens/items_catalog.dart';
-import 'package:naapos/utils/utils.dart';
-import 'package:naapos/views/charts_top_items.dart';
-import 'package:naapos/views/add_update_delete_item.dart';
+import 'package:naapos/screens/manage_receipt.dart';
+import 'package:naapos/screens/manage_item.dart';
+import 'package:naapos/screens/user_preferences.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -16,11 +14,6 @@ class _MainScreenState extends State<MainScreen> {
   PageController _pageController;
   int _page = 0;
 
-  bool homePressed = false;
-  bool createReceiptPressed = false;
-  bool manageInvoicePressed = false;
-  bool viewReceiptPressed = false;
-
   Color selectedIconColor = Colors.pink;
   Color normalIconColor = Colors.grey;
 
@@ -28,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
 
   //Change color of the icon on bottom navigation bar upon click
   void updateIconPressed(int indx) {
-    trackPress = [false, false, false, false];
+    trackPress = [false, false, false, false, false];
     trackPress[indx] = true;
   }
 
@@ -44,6 +37,7 @@ class _MainScreenState extends State<MainScreen> {
           NaaPOSHome(),
           ItemCatalog(),
           ManageInvoice(),
+          UserPreferences(),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -104,6 +98,20 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: () {
                 updateIconPressed(3);
                 _pageController.jumpToPage(3);
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                  Icons.settings,
+                  size: 30.0,
+                  color: (trackPress[4]) ? selectedIconColor : normalIconColor
+              ),
+              color: _page == 4
+                  ? Theme.of(context).accentColor
+                  : Theme.of(context).textTheme.caption.color,
+              onPressed: () {
+                updateIconPressed(4);
+                _pageController.jumpToPage(4);
               },
             ),
             SizedBox(width: 7),

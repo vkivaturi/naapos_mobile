@@ -54,6 +54,22 @@ class HelpState extends State<Help> {
                       ),
                     )),
                 Card(
+                  //color: Colors.grey,
+                    elevation: 2.0,
+                    child: ListTile(
+                      title: Text(
+                        "Want to start quickly?\n",
+                        style: TextStyle(
+                            fontSize: 20.0, color: Colors.orangeAccent),
+                      ),
+                      subtitle: Text(
+                        "Step 1 : Create items you want to sell or serve. Use the purple color Add Item box from home page\n\n" +
+                        "Step 2 : Start billing your customer! Use the cart button at bottom of the home page\n\n" +
+                        "And thats it! You are all set.",
+                            style: TextStyle(fontSize: 20.0, color: Colors.white),
+                      ),
+                    )),
+                Card(
                     //color: Colors.grey,
                     elevation: 2.0,
                     child: ListTile(
